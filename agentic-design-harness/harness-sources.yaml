@@ -1,0 +1,460 @@
+# Agentic Design Harness — Source Configuration v1.2
+#
+# ONE list of sources. Each source is either online or offline.
+#
+# ONLINE  — fetched at runtime: web_search (URLs), mcp (incl. PDF in vector DB), tool
+# OFFLINE — curated static files; field `created_from` points to the online source
+#           that produced them (null = harness builtin, never derived from online)
+#
+# CURATION JOBS — incremental, idempotent pipelines: online source → offline file
+#
+# Copy to agents-output/<slug>/harness-sources.yaml per project.
+
+version: "1.2.0"
+harness_version: "1.0.0"
+
+paths:
+  harness_root: agentic-design-harness
+  project_root: "agents-output/{slug}"
+
+# =============================================================================
+# SOURCES
+# =============================================================================
+sources:
+
+  # ---------------------------------------------------------------------------
+  # ONLINE — web_search, mcp, tool
+  # ---------------------------------------------------------------------------
+
+  - id: web-vendor-pricing
+    mode: online
+    type: web_search
+    name: Vendor Pricing Pages
+    enabled: true
+    authority: authoritative
+    urls_from: ref-trusted-sources        # offline file listing allowed URLs
+    url_scope: [pricing, model_cards]
+    rate_limit_per_step: 5
+
+  - id: web-trusted-benchmarks
+    mode: online
+    type: web_search
+    name: Independent Benchmarks
+    enabled: true
+    authority: authoritative
+    urls_from: ref-trusted-sources
+    url_scope: [leaderboards, latency]
+    rate_limit_per_step: 3
+
+  - id: mcp-document-rag
+    mode: online
+    type: mcp
+    name: Document RAG
+    enabled: false
+    authority: authoritative
+    mcp_server: document-rag              # map to your MCP server name in Cursor
+    description: >
+      PDF ebooks and docs indexed in a vector DB. Upload PDF here;
+      harness queries via MCP at runtime. Also used as upstream for offline curation jobs.
+    config:
+      group_name: null                    # e.g. "agentic-design-brain"
+      default_tags: []
+      top_k: 5
+    tools:
+      - rag_reformulate_question
+      - rag_get_documents_chunks
+      - rag_get_additional_chunks
+      - rag_planner
+      - rag_evaluate_results
+
+  - id: mcp-confluence
+    mode: online
+    type: mcp
+    name: Confluence
+    enabled: false
+    authority: advisory
+    mcp_server: confluence
+    config:
+      space_keys: []
+    tools:
+      - search_pages_by_cql
+      - get_page
+
+  - id: mcp-jira
+    mode: online
+    type: mcp
+    name: Jira
+    enabled: false
+    authority: advisory
+    mcp_server: jira
+    config:
+      project_keys: []
+    tools:
+      - jira_get_issue
+      - jira_search
+
+  - id: mcp-git-repo
+    mode: online
+    type: mcp
+    name: Git Repository Browser
+    enabled: false
+    authority: advisory
+    mcp_server: git-hosting
+    config:
+      repos: []
+    tools:
+      - get_content_of_file
+      - search
+
+  - id: tool-websearch
+    mode: online
+    type: tool
+    name: WebSearch Tool
+    enabled: true
+    authority: advisory
+    tool_name: WebSearch
+    description: Generic web search; use only when urls_from allow-list does not apply
+    restrict_to_urls_from: ref-trusted-sources
+
+  # ---------------------------------------------------------------------------
+  # OFFLINE — curated reference files
+  # created_from: <online-source-id> | null (null = harness builtin)
+  # ---------------------------------------------------------------------------
+
+  - id: ref-trusted-sources
+    mode: offline
+    type: file
+    name: Trusted URL Allow-List
+    path: "{harness_root}/references/trusted-sources/TRUSTED-SOURCES.md"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+
+  - id: ref-design-patterns
+    mode: offline
+    type: file
+    name: Design Patterns
+    path: "{harness_root}/references/design-patterns/DESIGN-PATTERNS.md"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+
+  - id: ref-benchmark-matrix
+    mode: offline
+    type: file
+    name: Benchmark Matrix
+    path: "{harness_root}/references/benchmark-matrix/BENCHMARK-MATRIX.yaml"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "0.2.0"
+    stale_after_days: 90
+
+  - id: ref-model-catalog
+    mode: offline
+    type: file
+    name: Model Catalog
+    path: "{harness_root}/references/model-catalog/MODEL-CATALOG.yaml"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "0.1.0"
+    stale_after_days: 30
+
+  - id: ref-kpi-framework
+    mode: offline
+    type: file
+    name: KPI Framework
+    path: "{harness_root}/references/kpi-framework/KPI-FRAMEWORK.yaml"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+
+  - id: ref-cost-model
+    mode: offline
+    type: file
+    name: Cost Model
+    path: "{harness_root}/references/cost-model/COST-MODEL.yaml"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+    stale_after_days: 30
+
+  - id: ref-compute-sizing
+    mode: offline
+    type: file
+    name: Compute Sizing
+    path: "{harness_root}/references/compute-sizing/COMPUTE-SIZING.md"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+
+  - id: ref-tools-patterns
+    mode: offline
+    type: file
+    name: Tools Patterns
+    path: "{harness_root}/references/tools-patterns/TOOLS-PATTERNS.md"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+
+  - id: ref-memory-patterns
+    mode: offline
+    type: file
+    name: Memory Patterns
+    path: "{harness_root}/references/memory-patterns/MEMORY-PATTERNS.md"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+
+  - id: ref-knowledge-patterns
+    mode: offline
+    type: file
+    name: Knowledge Patterns
+    path: "{harness_root}/references/knowledge-patterns/KNOWLEDGE-PATTERNS.md"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+
+  - id: ref-agent-frameworks
+    mode: offline
+    type: file
+    name: Agent Frameworks
+    path: "{harness_root}/references/agent-frameworks/AGENT-FRAMEWORKS.md"
+    created_from: null
+    created_at: "2026-07-06"
+    version: "1.0.0"
+    stale_after_days: 180
+
+  # --- Offline files derived from online sources (populated by curation_jobs) ---
+
+  - id: ref-design-patterns-curated
+    mode: offline
+    type: file
+    name: Design Patterns (from ebook)
+    path: "{project_root}/curated/design-patterns/DESIGN-PATTERNS.md"
+    created_from: mcp-document-rag
+    created_at: null
+    version: null
+    description: Curated extract; run job-design-patterns-from-ebook to populate
+
+  - id: ref-memory-knowledge-curated
+    mode: offline
+    type: file
+    name: Memory & Knowledge Patterns (from ebook)
+    path: "{project_root}/curated/knowledge-patterns/KNOWLEDGE-PATTERNS.md"
+    created_from: mcp-document-rag
+    created_at: null
+    version: null
+
+  - id: ref-model-catalog-curated
+    mode: offline
+    type: file
+    name: Model Catalog (from web snapshots)
+    path: "{project_root}/curated/model-catalog/MODEL-CATALOG.yaml"
+    created_from: web-vendor-pricing
+    created_at: null
+    version: null
+
+  - id: project-constraints
+    mode: offline
+    type: file
+    name: Project Constraints
+    path: "{project_root}/constraints.yaml"
+    created_from: null
+    description: Authored per project from stakeholder interview
+
+  - id: project-domain-kb
+    mode: offline
+    type: directory
+    name: Project Domain Knowledge
+    path: "{project_root}/domain-kb/"
+    created_from: mcp-document-rag
+    description: Domain docs; populate via job-domain-kb-from-rag or manual upload
+
+# =============================================================================
+# CURATION JOBS
+# Create or incrementally update offline sources from online sources.
+# All jobs MUST be incremental and idempotent (safe to re-run).
+# =============================================================================
+curation_jobs:
+
+  - id: job-design-patterns-from-ebook
+    enabled: false
+    description: Extract design patterns from PDF ebook (via Document RAG MCP) into offline file
+    from_source: mcp-document-rag
+    to_source: ref-design-patterns-curated
+    schedule: manual                      # manual | daily | weekly | on_source_change
+
+    strategy:
+      incremental: true
+      idempotent: true
+      state_file: "{project_root}/curation-state/job-design-patterns.json"
+      change_detection: chunk_hash        # chunk_hash | content_hash | source_version
+
+    extract:
+      query: "agentic design patterns orchestration sync async resilience"
+      tags: [patterns]
+      filenames: []                       # optional: ["my-ebook.pdf"]
+      output_format: markdown
+
+    merge:
+      mode: upsert_sections               # upsert_sections | replace_if_changed
+      section_key: heading
+      preserve_manual_edits: true         # keep sections marked <!-- manual-edit -->
+
+  - id: job-memory-knowledge-from-ebook
+    enabled: false
+    description: Extract memory and knowledge patterns from PDF ebook into offline file
+    from_source: mcp-document-rag
+    to_source: ref-memory-knowledge-curated
+    schedule: manual
+
+    strategy:
+      incremental: true
+      idempotent: true
+      state_file: "{project_root}/curation-state/job-memory-knowledge.json"
+      change_detection: chunk_hash
+
+    extract:
+      query: "memory patterns RAG GraphRAG context compaction token optimization"
+      tags: [memory, knowledge]
+      output_format: markdown
+
+    merge:
+      mode: upsert_sections
+      section_key: heading
+      preserve_manual_edits: true
+
+  - id: job-model-catalog-from-web
+    enabled: false
+    description: Snapshot vendor pricing into offline model catalog
+    from_source: web-vendor-pricing
+    to_source: ref-model-catalog-curated
+    schedule: monthly
+
+    strategy:
+      incremental: true
+      idempotent: true
+      state_file: "{project_root}/curation-state/job-model-catalog.json"
+      change_detection: content_hash
+
+    extract:
+      url_scope: [pricing, model_cards]
+      output_format: yaml
+
+    merge:
+      mode: replace_if_changed            # full file replace only when hash differs
+      preserve_manual_edits: false
+
+  - id: job-domain-kb-from-rag
+    enabled: false
+    description: Incrementally sync domain documents from RAG into project domain-kb/
+    from_source: mcp-document-rag
+    to_source: project-domain-kb
+    schedule: on_source_change
+
+    strategy:
+      incremental: true
+      idempotent: true
+      state_file: "{project_root}/curation-state/job-domain-kb.json"
+      change_detection: chunk_hash
+
+    extract:
+      query: "domain policies runbooks API specifications"
+      tags: [domain]
+      output_format: markdown
+      one_file_per_chunk: true            # writes domain-kb/<chunk-id>.md
+
+    merge:
+      mode: upsert_files                  # add new files; update changed; delete removed optional
+      delete_removed: false
+
+# =============================================================================
+# Idempotent curation job behaviour (pseudo-code for implementer)
+# =============================================================================
+#
+# FUNCTION runCurationJob(job):
+#   state = LOAD job.strategy.state_file OR {}
+#   online_content = FETCH job.from_source USING job.extract
+#
+#   FOR EACH chunk/section IN online_content:
+#     hash = SHA256(chunk)
+#     IF state[chunk.id].hash == hash:
+#       SKIP                              # incremental — unchanged
+#     ELSE:
+#       MERGE chunk INTO job.to_source USING job.merge
+#       state[chunk.id] = { hash, updated_at: now() }
+#
+#   WRITE state
+#   UPDATE offline source: created_at, version (increment patch)
+#   # idempotent: re-run with same online content → identical offline output, no duplicates
+#
+# =============================================================================
+
+# =============================================================================
+# STEP BINDINGS (summary) — full selection/filter/compress rules in harness-context.yaml
+# =============================================================================
+step_bindings:
+
+  capture-business-flow:
+    step: 1
+    sources: [mcp-jira, mcp-confluence, project-constraints]
+
+  classify-design-pattern:
+    step: 2
+    sources: [ref-design-patterns, ref-design-patterns-curated, mcp-document-rag]
+
+  define-kpis:
+    step: 3
+    sources: [ref-kpi-framework]
+
+  model-selection:
+    step: 4
+    sources:
+      - ref-benchmark-matrix
+      - ref-model-catalog
+      - ref-model-catalog-curated
+      - ref-cost-model
+      - ref-compute-sizing
+      - ref-trusted-sources
+      - web-vendor-pricing
+      - web-trusted-benchmarks
+
+  design-tools-integration:
+    step: 5
+    sources: [ref-tools-patterns, mcp-git-repo, mcp-confluence]
+
+  design-memory-knowledge:
+    step: 6
+    sources:
+      - ref-memory-patterns
+      - ref-knowledge-patterns
+      - ref-memory-knowledge-curated
+      - project-domain-kb
+      - mcp-document-rag
+
+  select-agent-framework:
+    step: 7
+    sources: [ref-agent-frameworks, mcp-document-rag, mcp-git-repo]
+
+  design-guardrails-security:
+    step: 8
+    sources: [project-constraints, mcp-document-rag]
+
+  design-observability-value-loops:
+    step: 9
+    sources: [mcp-document-rag]
+
+  generate-design-artifact:
+    step: 10
+    sources: []
+    write_provenance: true
+
+# =============================================================================
+# RUNTIME RULES — detail in harness-context.yaml
+# =============================================================================
+context_policy: harness-context.yaml
+
+runtime:
+  prefer_offline_when_fresh: true
+  stale_fallback_to_online: true          # if offline.stale_after_days exceeded, use created_from online source
+  authority_order: [project-constraints, authoritative, advisory, unverified]

@@ -1,0 +1,141 @@
+# KPI Framework — Agentic AI Design Harness v0.1.0
+
+# Each KPI: id, name, dimension, scale (1-5), description
+# Weight scale: 1 = low priority, 5 = critical
+
+kpis:
+  - id: K01
+    name: Quality / Accuracy
+    dimension: quality
+    scale:
+      1: "Best-effort; errors acceptable with retry"
+      2: "Good enough for internal tools"
+      3: "Production quality; occasional errors costly"
+      4: "High accuracy required; errors impact revenue"
+      5: "Regulated / critical; near-zero error tolerance"
+    drives: "Minimum model tier (T1 if >= 4)"
+
+  - id: K02
+    name: Reasoning Depth
+    dimension: quality
+    scale:
+      1: "Lookup and template responses"
+      2: "Simple 2-3 step logic"
+      3: "Multi-step analysis"
+      4: "Complex planning and trade-off evaluation"
+      5: "Deep reasoning; novel problem solving"
+    drives: "Tier bump; consider o-series / R1 class models"
+
+  - id: K03
+    name: Latency
+    dimension: performance
+    scale:
+      1: "Batch / overnight acceptable"
+      2: "Minutes acceptable"
+      3: "Under 30 seconds"
+      4: "Under 5 seconds"
+      5: "Sub-second interactive"
+    drives: "Smaller models, edge deployment, streaming"
+
+  - id: K04
+    name: Throughput
+    dimension: performance
+    scale:
+      1: "< 100 interactions/day"
+      2: "100 – 1K/day"
+      3: "1K – 10K/day"
+      4: "10K – 100K/day"
+      5: "> 100K/day"
+    drives: "Self-host economics; autoscaling; economy tier for bulk"
+
+  - id: K05
+    name: Context Length
+    dimension: capability
+    scale:
+      1: "< 8K tokens"
+      2: "8K – 32K"
+      3: "32K – 128K"
+      4: "128K – 200K"
+      5: "> 200K tokens"
+    drives: "Model selection; RAG vs long-context"
+
+  - id: K06
+    name: Cost Sensitivity
+    dimension: economics
+    scale:
+      1: "Budget unlimited; quality first"
+      2: "Cost aware but not constraining"
+      3: "Defined budget; optimize where possible"
+      4: "Tight budget; cost is primary factor"
+      5: "Minimal spend; aggressive optimization"
+    drives: "Economy tier; self-host; router; caching"
+
+  - id: K07
+    name: Privacy / Data Residency
+    dimension: security
+    scale:
+      1: "Public data only"
+      2: "Internal non-sensitive"
+      3: "Internal confidential"
+      4: "PII / customer data"
+      5: "Regulated / air-gapped / on-prem only"
+    drives: "Self-hosted mandatory at >= 4; private endpoints"
+
+  - id: K08
+    name: Multimodal
+    dimension: capability
+    scale:
+      1: "Text only"
+      2: "Occasional image input"
+      3: "Regular image analysis"
+      4: "Image + document (PDF) core"
+      5: "Audio/video core requirement"
+    drives: "Eliminate text-only models if >= 3"
+
+  - id: K09
+    name: Tool Use Complexity
+    dimension: architecture
+    scale:
+      1: "No tools; pure generation"
+      2: "1-2 simple tools"
+      3: "3-5 tools"
+      4: "6-10 tools; MCP servers"
+      5: "10+ tools; dynamic discovery"
+    drives: "Tier >= T2 for reliable tool calling; P2 if >= 4"
+
+  - id: K10
+    name: Availability SLA
+    dimension: operations
+    scale:
+      1: "Dev / POC only"
+      2: "Best effort"
+      3: "99% uptime"
+      4: "99.9% uptime"
+      5: "99.95%+ multi-region"
+    drives: "Fallback chains; multi-provider; replicas"
+
+# Default weights when user provides no input
+default_weights:
+  K01: 3
+  K02: 3
+  K03: 3
+  K04: 2
+  K05: 2
+  K06: 3
+  K07: 2
+  K08: 1
+  K09: 3
+  K10: 2
+
+# Hosting mode rules
+hosting_rules:
+  - condition: "K07 >= 4 OR residency_required"
+    mode: SELF_HOSTED
+  - condition: "K06 >= 4 AND K04 >= 3"
+    mode: SELF_HOSTED_WITH_API_FALLBACK
+  - condition: "K01 >= 4 AND K02 >= 4 AND K07 <= 2"
+    mode: API_HOSTED_FRONTIER
+  - condition: "K03 >= 4 AND K04 <= 2"
+    mode: API_HOSTED
+  - condition: "default"
+    mode: HYBRID

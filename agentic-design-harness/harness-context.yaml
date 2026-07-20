@@ -1,0 +1,457 @@
+# Agentic Design Harness — Context Management Policy v1.0
+#
+# Companion to harness-sources.yaml
+# Defines HOW sources are selected, filtered, validated, compressed per skill.
+#
+# Load both files at harness start (Step 0).
+
+version: "1.0.0"
+sources_config: harness-sources.yaml
+
+paths:
+  project_root: "agents-output/{slug}"
+  context_state: "{project_root}/context-state/"
+  step_context_dir: "{project_root}/context/steps/"
+
+# =============================================================================
+# PROMPT CACHING — keep stable prefix intact; compress only dynamic suffix
+# =============================================================================
+# Providers cache identical prompt PREFIXES. Dynamic content must never be
+# inserted into the stable prefix or reorder cacheable blocks.
+#
+# Layout per LLM call:
+#   [STABLE PREFIX]  ← cached; offline builtins, skill template, constraints
+#   [DYNAMIC SUFFIX] ← changes each step; fetches, summaries, step outputs
+# =============================================================================
+prompt_caching:
+  enabled: true
+
+  stable_prefix:
+    description: Identical across steps in a session — safe for prompt caching
+    include:
+      - harness_system_instructions       # HARNESS.md principles (fixed text)
+      - skill_prompt_template             # current skill SKILL.md (fixed per step)
+      - offline_sources_tagged: cache_stable
+      - project_constraints               # constraints.yaml — stable per project
+    rules:
+      - never_insert_dynamic_content_here
+      - never_reorder_blocks_in_stable_prefix
+      - use_deterministic_formatting        # same whitespace/field order every run
+      - compress_only_with_lossless_yaml_extract  # no summarization in stable prefix
+
+  dynamic_suffix:
+    description: Changes per step, fetch, or compaction — never cached
+    include:
+      - prior_step_outputs                  # flow.yaml, pattern.yaml, etc.
+      - online_fetch_results
+      - user_interview_answers_this_session
+      - compaction_summaries
+      - freshness_refresh_payloads
+    rules:
+      - compression_allowed
+      - append_new_blocks_at_end_only       # do not prepend into suffix middle
+      - tag_each_block_with_source_id_and_fetched_at
+
+  # Mark offline sources as cache-stable in harness-sources or here
+  cache_stable_sources:
+    - ref-design-patterns
+    - ref-kpi-framework
+    - ref-tools-patterns
+    - ref-memory-patterns
+    - ref-knowledge-patterns
+    - ref-trusted-sources
+    - project-constraints
+
+# =============================================================================
+# GLOBAL SELECTION RULES
+# =============================================================================
+selection:
+
+  default_order:
+    - prefer_offline_if_fresh
+    - then_offline_curated_over_builtin     # *-curated beats harness default if fresh
+    - then_online_created_from              # use created_from online source if offline stale
+    - then_online_step_binding              # other online sources in step binding
+    - never_use_unverified_without_flag
+
+  freshness:
+    # Applied to offline sources with created_at / stale_after_days
+    check_enabled: true
+    actions:
+      fresh: use_offline
+      stale_with_created_from: lookup_online    # fetch fresh from online parent
+      stale_no_created_from: warn_and_use_offline
+      missing_file: skip_or_lookup_online
+    record_in_context: true                     # log fetched_at, source_id used
+
+  lookup_new_content:
+    # When user or policy requests fresh data
+    triggers:
+      - offline_stale
+      - user_requests_refresh
+      - step_requires_live_pricing              # model-selection
+      - curated_file_missing
+    actions:
+      - query_online_source                     # from created_from or step binding
+      - optionally_trigger_curation_job         # update offline for next run
+      - tag_result: live_fetch
+      - never_mix_live_fetch_into_stable_prefix_without_separating_block
+
+  authority_filter:
+    order: [project-constraints, authoritative, advisory, unverified]
+    drop_unverified_unless: step_allows_advisory
+
+  deduplication:
+    enabled: true
+    key: content_hash
+    on_duplicate: keep_highest_authority
+
+# =============================================================================
+# GLOBAL VALIDATION RULES
+# =============================================================================
+validation:
+
+  on_fetch:
+    - rule: source_must_be_in_step_binding
+      on_fail: reject
+    - rule: offline_file_must_exist_if_required
+      on_fail: fallback_to_online_or_ask_user
+    - rule: online_source_must_be_enabled
+      on_fail: skip_with_warning
+    - rule: web_search_url_must_be_in_trusted_list
+      on_fail: reject_and_flag_unverified
+
+  on_content:
+    - rule: must_have_source_id_and_fetched_at
+      on_fail: reject
+    - rule: pricing_data_must_have_verified_date
+      applies_to_steps: [model-selection]
+      on_fail: trigger_lookup_new_content
+    - rule: rag_chunks_must_have_relevance_score
+      applies_to_sources: [mcp-document-rag]
+      min_score: 0.6
+      on_fail: drop_chunk
+    - rule: constraints_never_contradicted
+      applies_to: all_steps
+      on_fail: flag_conflict_ask_user
+
+  on_output:
+    - rule: write_context_manifest
+      path: "{step_context_dir}/{step}-manifest.yaml"
+
+# =============================================================================
+# GLOBAL COMPRESSION RULES
+# =============================================================================
+compression:
+
+  # Fields/sections NEVER removed by compression (any step)
+  preserve_always:
+    - flow.regulatory_compliance
+    - flow.constraints
+    - project_constraints
+    - open_questions
+    - compliance_notes
+    - failure_modes
+    - user_confirmed_decisions
+    - source_provenance
+
+  strategies:
+    structured_yaml_extract:
+      description: Keep schema fields; drop narrative prose
+      typical_reduction: 40-60%
+      cache_safe_for_stable: true
+
+    key_facts_bullets:
+      description: Convert prose to bullet facts with citations
+      typical_reduction: 50-70%
+      cache_safe_for_stable: false
+
+    retrieve_pointer:
+      description: Replace full text with id + path; load on demand next step
+      typical_reduction: 80-90%
+      cache_safe_for_stable: false
+
+    session_rollup:
+      description: After checkpoint, rollup prior steps into context-summary.yaml
+      applies_after_steps: [3, 6]
+      cache_safe_for_stable: false
+
+  token_budgets:
+    default_per_step: 12000
+    stable_prefix_max: 6000                   # keep stable prefix bounded for cache hit rate
+    dynamic_suffix_max: 8000
+
+# =============================================================================
+# PER-SKILL CONTEXT POLICY
+# Maps skill → sources with selection, filters, validation, compression
+# =============================================================================
+skills:
+
+  capture-business-flow:
+    step: 1
+    sources:
+      - id: project-constraints
+        role: required_if_exists
+        cache_tier: stable_prefix
+        compression: none
+      - id: mcp-jira
+        role: optional
+        cache_tier: dynamic_suffix
+        filters:
+          max_results: 5
+          max_age_days: 365
+        compression:
+          strategy: key_facts_bullets
+          token_budget: 2000
+      - id: mcp-confluence
+        role: optional
+        cache_tier: dynamic_suffix
+        filters:
+          max_results: 3
+        compression:
+          strategy: key_facts_bullets
+          token_budget: 2000
+    validation:
+      - user_must_confirm_before_next_step
+    output_context:
+      write: "{step_context_dir}/01-flow.yaml"
+      include_in_future_steps: full_until_step_6
+
+  classify-design-pattern:
+    step: 2
+    sources:
+      - id: ref-design-patterns-curated
+        role: primary
+        cache_tier: stable_prefix
+        freshness:
+          max_age_days: 90
+          if_stale: lookup_online
+        fallback: ref-design-patterns
+      - id: ref-design-patterns
+        role: fallback
+        cache_tier: stable_prefix
+      - id: mcp-document-rag
+        role: supplement
+        cache_tier: dynamic_suffix
+        only_if: offline_stale_or_user_requests_new
+        filters:
+          tags: [patterns]
+          min_relevance: 0.65
+          top_k: 3
+        compression:
+          strategy: key_facts_bullets
+          token_budget: 1500
+    inputs_from_steps: [1]
+    compression:
+      prior_step_inputs: structured_yaml_extract
+      token_budget: 4000
+
+  define-kpis:
+    step: 3
+    sources:
+      - id: ref-kpi-framework
+        role: required
+        cache_tier: stable_prefix
+        compression: structured_yaml_extract
+    inputs_from_steps: [1, 2]
+    compression:
+      prior_step_inputs: structured_yaml_extract
+    session_rollup:
+      enabled: true
+      output: "{project_root}/context/context-summary-through-3.yaml"
+      preserve_always_from_steps: [1, 2, 3]
+
+  model-selection:
+    step: 4
+    requires_live_pricing: true
+    sources:
+      - id: ref-benchmark-matrix
+        role: required
+        cache_tier: stable_prefix
+        freshness:
+          max_age_days: 90
+          if_stale: lookup_online
+        fallback_online: web-trusted-benchmarks
+      - id: ref-model-catalog-curated
+        role: primary
+        freshness:
+          max_age_days: 30
+          if_stale: lookup_online
+        fallback: ref-model-catalog
+      - id: ref-model-catalog
+        role: fallback
+        cache_tier: stable_prefix
+      - id: ref-cost-model
+        role: required
+        cache_tier: stable_prefix
+        freshness:
+          max_age_days: 30
+          if_stale: lookup_online
+      - id: ref-compute-sizing
+        role: required
+        cache_tier: stable_prefix
+      - id: ref-trusted-sources
+        role: required
+        cache_tier: stable_prefix
+      - id: web-vendor-pricing
+        role: refresh
+        cache_tier: dynamic_suffix
+        use_when:
+          - ref-model-catalog_stale
+          - ref-model-catalog-curated_stale
+          - ref-cost-model_stale
+        validation:
+          - pricing_must_have_verified_date
+        compression:
+          strategy: structured_yaml_extract
+          token_budget: 3000
+      - id: web-trusted-benchmarks
+        role: refresh
+        cache_tier: dynamic_suffix
+        use_when:
+          - ref-benchmark-matrix_stale
+        compression:
+          strategy: key_facts_bullets
+          token_budget: 2000
+    inputs_from_steps: [1, 3]
+    compression:
+      prior_step_inputs: structured_yaml_extract
+      token_budget: 5000
+
+  design-tools-integration:
+    step: 5
+    sources:
+      - id: ref-tools-patterns
+        role: required
+        cache_tier: stable_prefix
+      - id: mcp-confluence
+        role: optional
+        cache_tier: dynamic_suffix
+        filters:
+          max_results: 3
+      - id: mcp-git-repo
+        role: optional
+        cache_tier: dynamic_suffix
+    inputs_from_steps: [1, 2]
+    compression:
+      prior_step_inputs: structured_yaml_extract
+
+  design-memory-knowledge:
+    step: 6
+    sources:
+      - id: ref-memory-knowledge-curated
+        role: primary
+        freshness:
+          max_age_days: 90
+          if_stale: lookup_online
+        fallback: ref-memory-patterns
+      - id: ref-memory-patterns
+        role: fallback
+        cache_tier: stable_prefix
+      - id: ref-knowledge-patterns
+        role: required
+        cache_tier: stable_prefix
+      - id: project-domain-kb
+        role: optional
+        cache_tier: dynamic_suffix
+      - id: mcp-document-rag
+        role: supplement
+        cache_tier: dynamic_suffix
+        only_if: needs_knowledge_retrieval_or_offline_stale
+        filters:
+          tags: [memory, knowledge, domain]
+          min_relevance: 0.6
+          top_k: 5
+        compression:
+          strategy: key_facts_bullets
+          token_budget: 2500
+    inputs_from_steps: [1, 2, 3, 4, 5]
+    compression:
+      prior_step_inputs: session_rollup
+      use_summary: "{project_root}/context/context-summary-through-3.yaml"
+      token_budget: 6000
+    session_rollup:
+      enabled: true
+      output: "{project_root}/context/context-summary-through-6.yaml"
+
+  select-agent-framework:
+    step: 7
+    sources:
+      - id: ref-agent-frameworks
+        role: required
+        cache_tier: stable_prefix
+        freshness:
+          max_age_days: 180
+          if_stale: lookup_online
+      - id: mcp-document-rag
+        role: supplement
+        cache_tier: dynamic_suffix
+        filters:
+          tags: [frameworks]
+          top_k: 3
+      - id: mcp-git-repo
+        role: optional
+        cache_tier: dynamic_suffix
+    inputs_from_steps: [2, 6]
+    compression:
+      prior_step_inputs: retrieve_pointer
+      load_full: [pattern, memory_knowledge]
+
+  design-guardrails-security:
+    step: 8
+    sources:
+      - id: project-constraints
+        role: required_if_exists
+        cache_tier: stable_prefix
+        compression: none
+      - id: mcp-document-rag
+        role: supplement
+        cache_tier: dynamic_suffix
+        filters:
+          tags: [guardrails, security]
+          top_k: 3
+    inputs_from_steps: [1, 4, 6]
+    compression:
+      prior_step_inputs: structured_yaml_extract
+      preserve_always: [regulatory_compliance, constraints]
+
+  design-observability-value-loops:
+    step: 9
+    sources:
+      - id: mcp-document-rag
+        role: optional
+        cache_tier: dynamic_suffix
+        filters:
+          tags: [observability, loops]
+          top_k: 3
+    inputs_from_steps: [1, 3]
+    compression:
+      prior_step_inputs: retrieve_pointer
+
+  generate-design-artifact:
+    step: 10
+    sources: []
+    inputs_from_steps: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    compression:
+      load_from: "{step_context_dir}/*.yaml"
+      never_compress: preserve_always
+    write_provenance: true
+
+# =============================================================================
+# CONTEXT MANIFEST — written per step (validation output)
+# =============================================================================
+context_manifest_schema:
+  step: <int>
+  skill: <string>
+  assembled_at: <iso8601>
+  prompt_caching_enabled: <bool>
+  stable_prefix:
+    sources: [{ id, bytes, cache_stable }]
+    total_tokens: <int>
+  dynamic_suffix:
+    sources: [{ id, mode, fetched_at, fresh, compressed, tokens }]
+    total_tokens: <int>
+  freshness_actions: [{ source_id, action, reason }]
+  validation_results: [{ rule, pass, detail }]
+  compression_applied: [{ target, strategy, tokens_before, tokens_after }]
+  dropped_content: [{ source_id, reason }]

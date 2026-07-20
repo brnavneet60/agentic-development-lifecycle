@@ -1,0 +1,210 @@
+# Agentic Design Harness — Parallel Subagent Execution v1.0
+#
+# ISOLATION: each subagent gets its own context window, sources, and journal entry
+# PARALLEL: independent research tasks run concurrently after defined checkpoints
+#
+# Runtime: Cursor Task tool, Claude subagents, or any isolated agent worker
+
+version: "1.0.0"
+journal_config: harness-journal.yaml
+context_config: harness-context.yaml
+
+paths:
+  project_root: "agents-output/{slug}"
+  parallel_dir: "{project_root}/parallel/"
+  merge_dir: "{project_root}/parallel/merges/"
+
+# =============================================================================
+# PARALLEL EXECUTION MODEL
+# =============================================================================
+execution:
+
+  enabled: true
+  orchestrator: parent_harness_agent          # only parent merges results
+  subagent_isolation: strict                  # no shared in-flight context
+
+  subagent_receives:
+    - skill_prompt                            # one skill SKILL.md only
+    - journal_rollup_through_checkpoint       # summaries, not full YAML
+    - task_specific_inputs                    # minimal fields from rollup
+    - allowed_sources_from_harness_context    # scoped per task
+    - output_path                             # where to write result
+
+  subagent_must_not_receive:
+    - other_subagent_outputs_in_progress
+    - cold_tier_payloads
+    - full_prior_step_files_unless_listed_in_inputs
+
+  subagent_must_write:
+    - context/steps/NN-output.yaml
+    - journal/entries/step-NN-task-id.yaml
+    - parallel/tasks/NN-task-id-status.yaml
+
+# =============================================================================
+# PARALLEL WAVES — when to fan out
+# =============================================================================
+waves:
+
+  - wave_id: wave-post-3
+    name: Research fan-out after KPI checkpoint
+    trigger:
+      after_step: 3
+      requires_checkpoint_confirmed: true
+    description: Model selection, tools, and framework research can run in parallel
+
+    tasks:
+
+      - task_id: task-model-research
+        skill: model-selection
+        step: 4
+        parallel_with: [task-tools-research, task-framework-research]
+        isolated_inputs:
+          from_journal: rollup-through-03.yaml
+          fields:
+            - flow.task_profile
+            - flow.regulatory_compliance
+            - flow.region_network
+            - flow.traffic
+            - flow.scenarios
+            - kpi_profile
+        sources:                             # from harness-context skills.model-selection
+          - ref-benchmark-matrix
+          - ref-model-catalog
+          - ref-model-catalog-curated
+          - ref-cost-model
+          - ref-compute-sizing
+          - web-vendor-pricing
+          - web-trusted-benchmarks
+        outputs:
+          step_file: context/steps/04-models.yaml
+          journal_entry: journal/entries/step-04-model-selection.yaml
+        on_fail: block_wave_merge
+
+      - task_id: task-tools-research
+        skill: design-tools-integration
+        step: 5
+        parallel_with: [task-model-research, task-framework-research]
+        isolated_inputs:
+          from_journal: rollup-through-03.yaml
+          fields:
+            - flow.steps
+            - flow.actors
+            - flow.process_nuances.third_party_interfaces
+            - pattern.id
+            - pattern.execution
+        sources:
+          - ref-tools-patterns
+          - mcp-git-repo
+          - mcp-confluence
+        outputs:
+          step_file: context/steps/05-tools.yaml
+          journal_entry: journal/entries/step-05-tools.yaml
+        on_fail: continue_with_warning
+
+      - task_id: task-framework-research
+        skill: select-agent-framework
+        step: 7
+        parallel_with: [task-model-research, task-tools-research]
+        note: Runs early in parallel; memory/knowledge not yet available — pattern + flow only
+        isolated_inputs:
+          from_journal: rollup-through-03.yaml
+          fields:
+            - pattern.id
+            - pattern.complexity
+            - pattern.execution
+            - flow.signals_for_pattern
+            - kpi_profile.derived.hosting_bias
+        sources:
+          - ref-agent-frameworks
+          - mcp-document-rag
+        outputs:
+          step_file: context/steps/07-framework-draft.yaml
+          journal_entry: journal/entries/step-07-framework-draft.yaml
+        on_fail: continue_with_warning
+        refine_at_step: 7                    # re-run after step 6 with memory context
+
+    merge:
+      checkpoint_before_continue: true
+      merge_skill: merge-parallel-research
+      output: parallel/merges/wave-post-3-merge.yaml
+      journal_entry: journal/entries/wave-post-3-merge.yaml
+      conflicts:
+        - type: hosting_bias_mismatch
+          between: [task-model-research, task-framework-research]
+          resolve: ask_user
+        - type: tool_model_dependency
+          between: [task-model-research, task-tools-research]
+          resolve: prefer_model_selection_for_llm_tier
+
+  - wave_id: wave-post-6
+    name: Guardrails + observability prep (optional parallel)
+    trigger:
+      after_step: 6
+      requires_checkpoint_confirmed: true
+    enabled: false                          # opt-in; steps 8-9 often sequential
+    tasks:
+      - task_id: task-guardrails-draft
+        skill: design-guardrails-security
+        step: 8
+        isolated_inputs:
+          from_journal: rollup-through-06.yaml
+        outputs:
+          step_file: context/steps/08-guardrails-draft.yaml
+
+# =============================================================================
+# SUBAGENT LAUNCH (pseudo-code — Cursor Task tool mapping)
+# =============================================================================
+#
+# FUNCTION launchParallelWave(wave_id):
+#   wave = harness-parallel.waves[wave_id]
+#   ASSERT checkpoint_confirmed for wave.trigger.after_step
+#
+#   parent_context = loadIsolatedContext()   # journal rollup only
+#
+#   FOR EACH task IN wave.tasks:
+#     SPAWN subagent WITH:
+#       prompt: buildSubagentPrompt(task.skill, task.isolated_inputs, task.sources)
+#       isolation: strict
+#       output_contract: task.outputs
+#
+#   AWAIT all tasks
+#
+#   FOR EACH result:
+#     VALIDATE output files exist
+#     VALIDATE journal entry written
+#
+#   RUN merge_skill(wave.merge)
+#   WRITE wave merge journal entry
+#   ASK user checkpoint if wave.merge.checkpoint_before_continue
+#
+# Cursor runtime mapping:
+#   SPAWN → Task tool with subagent_type="generalPurpose" or "explore"
+#   Each task description includes: skill path, isolated inputs, sources, output paths
+#
+
+# =============================================================================
+# SEQUENTIAL STEPS (never parallelized)
+# =============================================================================
+always_sequential:
+  - capture-business-flow          # user interview — must be interactive
+  - define-kpis                    # weights need user confirmation at gate
+  - design-memory-knowledge        # depends on merged 4+5; needs full context
+  - generate-design-artifact       # compile pass — needs all rollups
+
+# Steps that run parallel then refine sequentially:
+refine_after_parallel:
+  - step: 7
+    skill: select-agent-framework
+    replaces: context/steps/07-framework-draft.yaml
+    requires: [step-6 memory/knowledge, wave-post-3 merge]
+
+# =============================================================================
+# CONTEXT WINDOW SAVINGS
+# =============================================================================
+context_optimization:
+  parent_during_wave:
+    loads: [rollup-through-03.yaml, wave task status pointers]
+    does_not_load: [subagent research payloads, raw fetches]
+  after_merge:
+    loads: [wave merge summary, rollup-through-06 path after step 6]
+  estimated_savings_vs_monolithic: 40-60%

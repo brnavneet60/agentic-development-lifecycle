@@ -1,0 +1,120 @@
+# Cost Model — Agentic AI Design Harness v0.1.0
+# DISCLAIMER: Verify all prices at provider before procurement.
+# Sources listed in HLD. Prices as of 2026-07-06 (indicative).
+
+version: "0.1.0"
+last_updated: "2026-07-06"
+currency: USD
+
+# Pattern multipliers applied to total token cost per flow
+pattern_multipliers:
+  P1: 1.0    # ReAct — 3-5 LLM calls
+  P2: 2.5    # Supervisor
+  P3: 1.8    # Pipeline
+  P4: 2.0    # Fan-out
+  P5: 1.2    # HITL
+  P6: 1.5    # RAG (+ embedding cost not included)
+  P7: 1.3    # Event-driven
+
+# Default LLM calls per business flow (mid estimate)
+pattern_llm_calls:
+  P1: 4
+  P2: 10
+  P3: 6
+  P4: 8
+  P5: 4
+  P6: 7
+  P7: 5
+
+# API pricing per million tokens
+api_pricing:
+  gpt-4.1:
+    input_per_mtok: 2.00
+    output_per_mtok: 8.00
+    source: "https://developers.openai.com/api/docs/pricing"
+  gpt-4o:
+    input_per_mtok: 2.50
+    output_per_mtok: 10.00
+    source: "https://developers.openai.com/api/docs/pricing"
+  gpt-4o-mini:
+    input_per_mtok: 0.15
+    output_per_mtok: 0.60
+    source: "https://developers.openai.com/api/docs/pricing"
+  claude-sonnet-4:
+    input_per_mtok: 3.00
+    output_per_mtok: 15.00
+    source: "https://claude.com/platform/api"
+  claude-haiku-4.5:
+    input_per_mtok: 0.80
+    output_per_mtok: 4.00
+    source: "https://claude.com/platform/api"
+  gemini-2.0-flash:
+    input_per_mtok: 0.10
+    output_per_mtok: 0.40
+    source: "Google AI — verify current pricing"
+
+# Cost optimization factors
+optimization:
+  prompt_caching:
+    description: "Provider-native cache for repeated system prompts"
+    savings_range: "0.50 - 0.90"
+    applies_when: "K04 >= 3"
+  batch_api:
+    description: "OpenAI Batch API 50% discount"
+    savings_factor: 0.50
+    applies_when: "K03 <= 2"
+  model_router:
+    description: "Route 60% traffic to economy tier"
+    savings_range: "0.30 - 0.60"
+    applies_when: "HYBRID or API with mixed complexity"
+
+# Estimation formula (documented for agent use)
+formula:
+  per_request_cost: |
+  per_request_cost =
+    (input_tokens / 1_000_000) * input_per_mtok +
+    (output_tokens / 1_000_000) * output_per_mtok
+
+  per_flow_cost: |
+  per_flow_cost = per_request_cost * llm_calls_per_flow * pattern_multiplier
+
+  monthly_cost: |
+  monthly_cost = per_flow_cost * daily_requests * 30
+
+# Sensitivity scenarios
+sensitivity:
+  - name: "2x volume"
+    factor: 2.0
+  - name: "Prompt caching enabled"
+    factor: 0.4
+  - name: "Router 60% to economy"
+    factor: 0.55
+
+# Self-hosted cloud GPU indicative pricing ($/hour)
+gpu_cloud_pricing:
+  - gpu: "T4 16GB"
+    hourly_usd: 0.35
+    suitable: "8B INT4, dev"
+  - gpu: "L4 24GB"
+    hourly_usd: 0.60
+    suitable: "8B FP16, light 70B INT4"
+  - gpu: "A10G 24GB"
+    hourly_usd: 1.00
+    suitable: "8B production"
+  - gpu: "A100 40GB"
+    hourly_usd: 1.50
+    suitable: "70B INT4"
+  - gpu: "A100 80GB"
+    hourly_usd: 2.50
+    suitable: "70B INT8"
+  - gpu: "2x A100 80GB"
+    hourly_usd: 5.00
+    suitable: "70B FP16"
+  - gpu: "H100 80GB"
+    hourly_usd: 3.50
+    suitable: "70B production, high throughput"
+
+# Monthly infra estimate for self-hosted
+self_hosted_formula: |
+  monthly_infra = gpu_hourly * 24 * 30 * replicas * utilization_factor
+  utilization_factor default = 0.5 (not 100% GPU busy)

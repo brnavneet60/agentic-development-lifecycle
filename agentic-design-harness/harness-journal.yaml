@@ -1,0 +1,247 @@
+# Agentic Design Harness — Design Journal & Context Isolation v1.0
+#
+# WRITE: record research, decisions, and planning per step to disk
+# ISOLATE: parent agent loads journal summaries + pointers — not full payloads
+# GOAL: shrink context window; full detail recoverable from journal on demand
+#
+# Companion: harness-context.yaml, harness-parallel.yaml
+
+version: "1.0.0"
+
+paths:
+  project_root: "agents-output/{slug}"
+  journal_dir: "{project_root}/journal/"
+  journal_index: "{project_root}/journal/INDEX.yaml"
+  steps_dir: "{project_root}/context/steps/"
+  isolated_payloads: "{project_root}/journal/payloads/"
+
+# =============================================================================
+# JOURNAL — what to write after every step
+# =============================================================================
+journal:
+  enabled: true
+  append_only: true
+
+  # Parent agent reads this chain instead of reloading all prior step files
+  parent_loads:
+    - journal_index                         # table of contents
+    - latest_checkpoint_summaries           # through last confirmed gate
+    - current_step_isolated_inputs          # summaries + pointers only
+    - never_load_by_default:
+        - journal/payloads/*                # raw research blobs
+        - context/steps/*-manifest.yaml     # unless debugging
+
+  entry_schema:
+    required:
+      - entry_id                            # e.g. "step-04-model-selection"
+      - step
+      - skill
+      - recorded_at
+      - status                              # started | completed | failed | parallel_merged
+      - research_log                        # how research was done
+      - decisions                           # what was decided
+      - output_pointer                      # path to full step YAML
+      - summary                             # compact text for downstream steps
+    optional:
+      - sources_consulted
+      - freshness_actions
+      - validation_results
+      - compression_stats
+      - subagent_id                         # if written by isolated subagent
+      - parent_wave_id
+      - open_questions
+      - user_confirmations
+
+  # Checkpoint gates — journal rollup replaces full step history after confirm
+  checkpoint_rollups:
+    - after_step: 1
+      file: "{journal_dir}/rollup-through-01.yaml"
+      include_entries: [step-01]
+    - after_step: 3
+      file: "{journal_dir}/rollup-through-03.yaml"
+      include_entries: [step-01, step-02, step-03]
+    - after_step: 6
+      file: "{journal_dir}/rollup-through-06.yaml"
+      include_entries: [step-01, step-02, step-03, step-04, step-05, step-06]
+    - after_step: 9
+      file: "{journal_dir}/rollup-through-09.yaml"
+      include_entries: [step-01, step-02, step-03, step-04, step-05, step-06, step-07, step-08, step-09]
+
+# =============================================================================
+# ISOLATION — what stays out of the parent context window
+# =============================================================================
+isolation:
+
+  tiers:
+    hot:
+      description: In parent context now — minimal
+      contains: [journal_index, current_rollup_summary, decisions_list, open_questions]
+      max_tokens: 3000
+
+    warm:
+      description: Load on demand via pointer
+      contains: [step_output_yaml, context_manifest, compressed_fetch_summary]
+      load_when: skill_explicitly_requests_field
+
+    cold:
+      description: Never in parent context — disk only
+      contains: [raw_mcp_chunks, full_web_fetch_html, deduped_before_drop, debug_traces]
+      path: "{isolated_payloads}/"
+
+  rules:
+    - parent_never_loads_cold_tier
+    - warm_tier_loaded_by_pointer_only
+    - each_step_writes_summary_max_tokens: 800
+    - research_raw_always_to_cold_tier
+    - decisions_must_appear_in_hot_tier
+
+  pointer_format:
+    example: "journal/payloads/04-pricing-fetch.yaml#verified_date"
+    resolve: "load warm tier field on demand"
+
+# =============================================================================
+# PER-STEP JOURNAL POLICY — what each skill must record
+# =============================================================================
+skills:
+
+  capture-business-flow:
+    step: 1
+    write:
+      research_log: [interview_blocks_completed, optional_mcp_queries]
+      decisions: [domain, goal, actors, scenario_count, compliance_flags]
+      summary_fields: [flow.name, flow.goal, flow.regulatory_compliance, signals_for_pattern]
+    isolate:
+      cold: [raw_mcp_jira_results, raw_mcp_confluence_results]
+      warm: [full flow.yaml at context/steps/01-flow.yaml]
+
+  classify-design-pattern:
+    step: 2
+    write:
+      research_log: [sources_used, pattern_candidates_considered, rainy_day_influence]
+      decisions: [pattern_id, hitl_overlay, sync_async, resilience_timeouts]
+      summary_fields: [pattern.id, pattern.name, pattern.execution, pattern.resilience]
+    isolate:
+      cold: [raw_rag_chunks_patterns]
+      warm: [context/steps/02-pattern.yaml]
+
+  define-kpis:
+    step: 3
+    write:
+      research_log: [kpi_weights_rationale, constraint_influence]
+      decisions: [kpi_profile.normalized, hosting_bias]
+      summary_fields: [kpi_profile.normalized, kpi_profile.derived.hosting_bias]
+    isolate:
+      warm: [context/steps/03-kpis.yaml]
+    rollup_trigger: true                    # writes rollup-through-03 after checkpoint
+
+  model-selection:
+    step: 4
+    write:
+      research_log:
+        - sources_consulted
+        - freshness_actions
+        - benchmark_scores_by_task
+        - pricing_lookup_performed
+        - composite_ranking
+      decisions: [primary, fallback, economy, embedding, per_step_models, hosting]
+      summary_fields: [model_recommendations.primary, model_recommendations.hosting, rainy_day_coverage]
+    isolate:
+      cold: [raw_web_pricing_html, full_benchmark_matrix_in_memory]
+      warm: [context/steps/04-models.yaml]
+    parallel_capable: true
+
+  design-tools-integration:
+    step: 5
+    write:
+      research_log: [systems_mapped, mcp_vs_api_decisions, build_vs_buy]
+      decisions: [tools.inventory, tools.mcp_strategy]
+      summary_fields: [tools.inventory_count, tools.mcp_strategy]
+    isolate:
+      cold: [raw_git_repo_search, raw_confluence_pages]
+      warm: [context/steps/05-tools.yaml]
+    parallel_capable: true
+
+  design-memory-knowledge:
+    step: 6
+    write:
+      research_log: [memory_pattern_choice, kb_strategy, rag_vs_graphrag_rationale]
+      decisions: [memory.agents, knowledge.strategy, context_management]
+      summary_fields: [knowledge.strategy, knowledge.required, memory pattern per agent]
+    isolate:
+      cold: [raw_rag_chunks_memory]
+      warm: [context/steps/06-memory-knowledge.yaml]
+    rollup_trigger: true
+
+  select-agent-framework:
+    step: 7
+    write:
+      research_log: [frameworks_compared, pattern_fit_scores]
+      decisions: [framework.primary, framework.kagent_platform_path]
+      summary_fields: [framework.primary, framework.rationale]
+    isolate:
+      warm: [context/steps/07-framework.yaml]
+    parallel_capable: true
+
+  design-guardrails-security:
+    step: 8
+    write:
+      research_log: [guardrails_mapped_to_compliance, security_controls]
+      decisions: [guardrails matrix, security matrix]
+      summary_fields: [top_guardrails, security.protocol, security.secrets]
+    isolate:
+      warm: [context/steps/08-guardrails-security.yaml]
+
+  design-observability-value-loops:
+    step: 9
+    write:
+      research_log: [observability_stack, value_kpi_mapping, loop_types]
+      decisions: [observability layers, value_kpis, loops]
+      summary_fields: [value_kpis count, loops enabled]
+    isolate:
+      warm: [context/steps/09-observability.yaml]
+    rollup_trigger: true
+
+  generate-design-artifact:
+    step: 10
+    write:
+      research_log: [sections_filled, provenance_sources_cited]
+      decisions: [artifact_path, open_questions_included]
+      summary_fields: [artifact path, harness version]
+    isolate:
+      warm: [agentic-design-artifact.md]
+    reads:
+      - rollup-through-09.yaml              # not individual step files
+      - pointers to warm tier as needed
+
+# =============================================================================
+# JOURNAL ENTRY TEMPLATE (written per step)
+# =============================================================================
+# See templates/design-journal-entry.yaml
+
+# =============================================================================
+# WRITE / READ PSEUDO-CODE
+# =============================================================================
+#
+# AFTER each skill completes:
+#
+# FUNCTION writeJournalEntry(step, skill, outputs, context_manifest):
+#   entry = {
+#     entry_id: "step-{step:02d}-{skill}",
+#     research_log: extract from manifest + skill execution trace,
+#     decisions: structured decisions only,
+#     output_pointer: context/steps/{step}-*.yaml,
+#     summary: compress(outputs, max 800 tokens, preserve decisions),
+#   }
+#   WRITE journal/entries/{entry_id}.yaml
+#   IF raw_fetch: WRITE cold tier journal/payloads/{entry_id}-*.yaml
+#   UPDATE journal/INDEX.yaml
+#   IF checkpoint confirmed AND rollup_trigger: WRITE rollup-through-NN.yaml
+#
+# BEFORE each skill starts (parent agent):
+#
+# FUNCTION loadIsolatedContext(step):
+#   index = READ journal/INDEX.yaml
+#   rollup = latest rollup-through-NN where N < step
+#   RETURN { index, rollup }   # NOT full step YAMLs, NOT cold payloads
+#   IF skill needs specific field: resolve pointer → warm tier on demand
+#

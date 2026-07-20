@@ -1,0 +1,268 @@
+# Model Catalog — Agentic AI Design Harness v0.1.0
+# kpi_affinity: 0.0-1.0 suitability per KPI (higher = better fit)
+# Verify pricing separately in COST-MODEL.yaml
+
+version: "0.1.0"
+last_updated: "2026-07-06"
+
+tiers:
+  T1: { name: Frontier, description: "Best reasoning, agents, code" }
+  T2: { name: Strong, description: "Production agent workloads" }
+  T3: { name: Efficient, description: "High-volume simpler tasks" }
+  T4: { name: Micro, description: "Routing, classification, guardrails" }
+
+models:
+
+  # ─── API Models ───────────────────────────────────────────────
+
+  - id: gpt-4.1
+    name: "GPT-4.1"
+    provider: openai
+    tier: T1
+    hosting: [api]
+    max_context_tokens: 1000000
+    multimodal: false
+    params_billion: null
+    kpi_affinity:
+      K01: 0.95
+      K02: 0.95
+      K03: 0.75
+      K04: 0.70
+      K05: 1.00
+      K06: 0.40
+      K07: 0.30
+      K08: 0.20
+      K09: 0.95
+      K10: 0.90
+
+  - id: gpt-4o
+    name: "GPT-4o"
+    provider: openai
+    tier: T2
+    hosting: [api]
+    max_context_tokens: 128000
+    multimodal: true
+    params_billion: null
+    kpi_affinity:
+      K01: 0.90
+      K02: 0.85
+      K03: 0.85
+      K04: 0.75
+      K05: 0.80
+      K06: 0.55
+      K07: 0.30
+      K08: 0.90
+      K09: 0.90
+      K10: 0.90
+
+  - id: gpt-4o-mini
+    name: "GPT-4o mini"
+    provider: openai
+    tier: T3
+    hosting: [api]
+    max_context_tokens: 128000
+    multimodal: true
+    params_billion: null
+    kpi_affinity:
+      K01: 0.70
+      K02: 0.65
+      K03: 0.90
+      K04: 0.90
+      K05: 0.75
+      K06: 0.95
+      K07: 0.30
+      K08: 0.75
+      K09: 0.80
+      K10: 0.85
+
+  - id: claude-sonnet-4
+    name: "Claude Sonnet 4"
+    provider: anthropic
+    tier: T2
+    hosting: [api]
+    max_context_tokens: 200000
+    multimodal: true
+    params_billion: null
+    kpi_affinity:
+      K01: 0.92
+      K02: 0.90
+      K03: 0.80
+      K04: 0.75
+      K05: 0.95
+      K06: 0.50
+      K07: 0.35
+      K08: 0.85
+      K09: 0.92
+      K10: 0.90
+
+  - id: claude-haiku-4.5
+    name: "Claude Haiku 4.5"
+    provider: anthropic
+    tier: T3
+    hosting: [api]
+    max_context_tokens: 200000
+    multimodal: true
+    params_billion: null
+    kpi_affinity:
+      K01: 0.72
+      K02: 0.68
+      K03: 0.92
+      K04: 0.92
+      K05: 0.85
+      K06: 0.88
+      K07: 0.35
+      K08: 0.70
+      K09: 0.82
+      K10: 0.88
+
+  - id: gemini-2.0-flash
+    name: "Gemini 2.0 Flash"
+    provider: google
+    tier: T3
+    hosting: [api]
+    max_context_tokens: 1000000
+    multimodal: true
+    params_billion: null
+    kpi_affinity:
+      K01: 0.75
+      K02: 0.72
+      K03: 0.92
+      K04: 0.95
+      K05: 0.98
+      K06: 0.98
+      K07: 0.30
+      K08: 0.88
+      K09: 0.78
+      K10: 0.85
+
+  # ─── Self-Hosted Models ─────────────────────────────────────────
+
+  - id: llama-3.1-70b
+    name: "Meta Llama 3.1 70B Instruct"
+    provider: meta
+    tier: T2
+    hosting: [self_hosted]
+    max_context_tokens: 128000
+    multimodal: false
+    params_billion: 70
+    kpi_affinity:
+      K01: 0.82
+      K02: 0.80
+      K03: 0.65
+      K04: 0.70
+      K05: 0.75
+      K06: 0.85
+      K07: 0.95
+      K08: 0.10
+      K09: 0.78
+      K10: 0.75
+
+  - id: llama-3.1-8b
+    name: "Meta Llama 3.1 8B Instruct"
+    provider: meta
+    tier: T3
+    hosting: [self_hosted]
+    max_context_tokens: 128000
+    multimodal: false
+    params_billion: 8
+    kpi_affinity:
+      K01: 0.65
+      K02: 0.60
+      K03: 0.85
+      K04: 0.85
+      K05: 0.70
+      K06: 0.95
+      K07: 0.95
+      K08: 0.10
+      K09: 0.70
+      K10: 0.70
+
+  - id: qwen2.5-72b
+    name: "Qwen 2.5 72B Instruct"
+    provider: qwen
+    tier: T2
+    hosting: [self_hosted]
+    max_context_tokens: 131072
+    multimodal: false
+    params_billion: 72
+    kpi_affinity:
+      K01: 0.83
+      K02: 0.82
+      K03: 0.65
+      K04: 0.70
+      K05: 0.78
+      K06: 0.85
+      K07: 0.95
+      K08: 0.10
+      K09: 0.80
+      K10: 0.75
+
+  - id: mistral-large
+    name: "Mistral Large"
+    provider: mistral
+    tier: T2
+    hosting: [api, self_hosted]
+    max_context_tokens: 128000
+    multimodal: false
+    params_billion: null
+    kpi_affinity:
+      K01: 0.85
+      K02: 0.83
+      K03: 0.75
+      K04: 0.72
+      K05: 0.78
+      K06: 0.70
+      K07: 0.60
+      K08: 0.15
+      K09: 0.85
+      K10: 0.80
+
+  - id: phi-4
+    name: "Microsoft Phi-4"
+    provider: microsoft
+    tier: T3
+    hosting: [self_hosted]
+    max_context_tokens: 16384
+    multimodal: false
+    params_billion: 14
+    kpi_affinity:
+      K01: 0.68
+      K02: 0.72
+      K03: 0.88
+      K04: 0.88
+      K05: 0.50
+      K06: 0.92
+      K07: 0.95
+      K08: 0.10
+      K09: 0.65
+      K10: 0.70
+
+  - id: llama-3.2-3b
+    name: "Meta Llama 3.2 3B"
+    provider: meta
+    tier: T4
+    hosting: [self_hosted]
+    max_context_tokens: 128000
+    multimodal: false
+    params_billion: 3
+    kpi_affinity:
+      K01: 0.45
+      K02: 0.40
+      K03: 0.95
+      K04: 0.95
+      K05: 0.65
+      K06: 0.98
+      K07: 0.98
+      K08: 0.10
+      K09: 0.50
+      K10: 0.65
+
+# Recommended pairings
+pairings:
+  supervisor_orchestrator:
+    orchestrator: [gpt-4o-mini, claude-haiku-4.5, llama-3.1-8b]
+    specialist: [gpt-4o, claude-sonnet-4, llama-3.1-70b]
+  router_classifier:
+    models: [gpt-4o-mini, llama-3.2-3b, claude-haiku-4.5]
+  guardrail:
+    models: [llama-3.2-3b, gpt-4o-mini]

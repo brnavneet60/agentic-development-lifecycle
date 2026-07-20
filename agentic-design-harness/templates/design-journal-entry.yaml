@@ -1,0 +1,75 @@
+# Design Journal Entry
+# Written after each harness step — parent loads summary + pointers, not full research
+
+entry_id: step-04-model-selection
+step: 4
+skill: model-selection
+recorded_at: "2026-07-16T12:00:00Z"
+status: completed
+
+# How research was performed (audit trail)
+research_log:
+  sources_consulted:
+    - id: ref-benchmark-matrix
+      mode: offline
+      fresh: true
+    - id: web-vendor-pricing
+      mode: online
+      reason: ref-model-catalog-curated_stale
+      fetched_at: "2026-07-16T12:00:05Z"
+  freshness_actions:
+    - offline: ref-model-catalog-curated
+      action: lookup_online
+      online_source: web-vendor-pricing
+  queries:
+    - source: web-vendor-pricing
+      scope: pricing
+      result_pointer: journal/payloads/04-pricing-fetch.yaml
+  benchmark_summary:
+    top_task_types: [tool_use, reasoning]
+    leading_models: [claude-sonnet-4, gpt-4.1]
+  validation:
+    - rule: pricing_must_have_verified_date
+      pass: true
+      verified_date: "2026-07-16"
+
+# What was decided (hot tier — always in parent context)
+decisions:
+  - field: model_recommendations.primary.model_id
+    value: claude-sonnet-4
+    rationale: highest composite; compliance fit EU residency via Bedrock
+  - field: model_recommendations.hosting.mode
+    value: api
+    rationale: K07 privacy=4 but regional endpoint available
+  - field: model_recommendations.economy.model_id
+    value: claude-haiku-4.5
+    rationale: high-volume classification steps
+
+# Compact summary for downstream steps (max ~800 tokens)
+summary: |
+  Primary: Claude Sonnet 4 (API, EU Bedrock). Economy: Haiku 4.5 for triage.
+  Embedding: text-embedding-3-large if RAG in step 6. Hosting: API with private endpoint.
+  Rainy day RD2 (ambiguous intent): covered via conversation benchmark >= 0.75.
+  Pricing verified 2026-07-16. Open: confirm GPU budget if self-host fallback required.
+
+# Pointer to full output (warm tier — load on demand)
+output_pointer: context/steps/04-models.yaml
+
+# Cold tier — raw research never in parent context
+payload_pointers:
+  - journal/payloads/04-pricing-fetch.yaml
+  - journal/payloads/04-benchmark-extract.yaml
+
+# Parallel execution metadata (if applicable)
+subagent_id: null
+parent_wave_id: null
+
+open_questions:
+  - GPU budget for self-hosted fallback if API contract blocked
+
+user_confirmations: []
+
+compression_stats:
+  full_output_tokens: 5200
+  summary_tokens: 180
+  cold_payload_tokens: 8400
