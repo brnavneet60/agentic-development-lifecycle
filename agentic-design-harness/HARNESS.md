@@ -1,11 +1,13 @@
 ---
 name: agentic-design-harness
-version: "1.0.0"
+version: "1.3.0"
 phase: e2e
 description: End-to-end offline harness for agentic AI solution design — business flow discovery through architecture, models, tools, memory, knowledge, guardrails, security, observability, and value reporting.
 compatibility: Cursor, Claude Code, or any Agent Skills-compatible runtime. Offline references; WebSearch allowed only for trusted-source model research in Step 4.
 license: MIT
-source_context: agents-output/agentic-design-harness/e2e-agentic-design-harness.txt
+source_context: ../../agentic-design-harness-hld/e2e-agentic-design-harness.txt
+output_standards: ../../agentic-design-harness-hld/OUTPUT-STANDARDS.md
+handoff: ../../agentic-design-harness-hld/HANDOFF-agentic-design-harness.md
 ---
 
 # Agentic AI Design Harness (E2E)
@@ -22,6 +24,7 @@ You are an **Agentic AI Solution Architect**. Transform a business narrative int
 | **Offline-first** | Use `references/` for patterns and catalogs; live search only where skill explicitly allows |
 | **Journal isolated** | Record research per step; parent loads summaries only |
 | **Parallel subagents** | Fan-out research after Step 3 checkpoint (optional) |
+| **Leadership-ready output** | Follow `OUTPUT-STANDARDS.md` — business language, decision register, delivery plan |
 | **Downstream ready** | Output feeds `kagent-platform-harness/` or other implementation harnesses |
 
 ## Workflow — Execute in Order
@@ -64,28 +67,30 @@ You are an **Agentic AI Solution Architect**. Transform a business narrative int
 | Journal & parallel guide | `references/context-management/JOURNAL-AND-PARALLEL.md` |
 | References index | `references/REFERENCES.md` |
 | Output template | `templates/agentic-design-artifact-template.md` |
+| Output standards | `../../agentic-design-harness-hld/OUTPUT-STANDARDS.md` |
+| Reproduction guide | `../../agentic-design-harness-hld/REPRODUCIBILITY.md` |
 | Trusted sources list | `references/trusted-sources/TRUSTED-SOURCES.md` |
+| Curation URL catalog | `references/curation-sources/CURATION-SOURCES.md` |
 
 ## Output Location
 
 ```
-agents-output/<project-slug>/agentic-design-artifact.md
+agents-output/agentic-design-harness/<project-slug>/<project-slug>.md
 ```
 
-Slug from flow name (e.g. `order-dispute-resolution`).
+Slug from use case name (e.g. `lyft-charge-earnings-dispute`). See `OUTPUT-STANDARDS.md`.
 
 ## Relationship to Platform Harness
 
 ```
-agentic-design-harness (this)  →  agentic-design-artifact.md
+agentic-design-harness (this)
+  → agents-output/agentic-design-harness/<slug>/<slug>.md
          │
          ▼
-kagent-design-harness        →  kagent-implementation-artifact.md
-         │
-         ▼
-build-agent (on cluster)       →  Git + Argo CD deploy
+kagent-design-harness
+  → agents-output/kagent-design-harness/<slug>/…
 ```
 
 ## Quick Start Prompt
 
-> "Using agentic-design-harness v1, design end-to-end agentic AI for: [business flow]. Run all 10 steps with checkpoint confirmations and produce the design artifact."
+> "Using agentic-design-harness v1.3, read OUTPUT-STANDARDS.md and HARNESS.md, then design end-to-end agentic AI for: [business flow]. Run Steps 0–10 with checkpoint confirmations. Produce agents-output/agentic-design-harness/<slug>/<slug>.md per OUTPUT-STANDARDS (evidence register, interview coverage matrix, open-decision defaults). Journal every step and every revision."

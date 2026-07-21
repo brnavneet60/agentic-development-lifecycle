@@ -2,6 +2,8 @@
 
 Simple model: **one source list**, two modes, one job pipeline.
 
+Primary curation URL catalog: `references/curation-sources/CURATION-SOURCES.md`.
+
 ---
 
 ## Source list
@@ -57,6 +59,11 @@ Every offline source has:
 ## Curation jobs
 
 Jobs connect **online → offline**. They are **incremental** and **idempotent**.
+
+Every curation run must log:
+- `source_url` (from `CURATION-SOURCES.md` or source registry)
+- `curated_at` (UTC timestamp)
+- `source_version` (if available from vendor docs)
 
 ```yaml
 curation_jobs:

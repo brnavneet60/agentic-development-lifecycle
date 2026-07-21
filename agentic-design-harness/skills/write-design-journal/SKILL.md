@@ -5,7 +5,7 @@ compatibility: Reads harness-journal.yaml. Runs after every skill completes.
 metadata:
   harness: agentic-design-harness
   runs_after_every_step: true
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Write Design Journal
@@ -140,6 +140,32 @@ checkpoints_confirmed: [1, 3]
 
 ---
 
+## Design revision journaling (mandatory)
+
+Whenever the design artifact is revised from feedback or new information (not only after a numbered skill step):
+
+```
+FUNCTION writeRevisionJournal(trigger, delta, decisions):
+  WRITE journal/entries/revision-YYYYMMDD-<label>.yaml WITH {
+    revision_id,
+    type: design_revision,
+    timestamp: now(),
+    trigger,                 # e.g. path to architect review feedback file
+    prior_review: optional,
+    summary,
+    decisions[],             # field, value, rationale
+    delta_sections_added_or_expanded[],
+    harness_updates_required[],  # if standards/skills must change
+    pointers: { artifact, review, output_standards }
+  }
+  UPDATE journal/INDEX.yaml:
+    updated_at, status, entries[], reviews[]
+```
+
+**Rule:** Do not overwrite `agents-output/agentic-design-harness/<slug>/<slug>.md` without a revision journal entry.
+
+---
+
 ## Negative Scenarios
 
 | Scenario | Response |
@@ -148,6 +174,7 @@ checkpoints_confirmed: [1, 3]
 | Summary exceeds 800 tokens | Truncate narrative; keep all `decisions` intact |
 | No raw fetches | `payload_pointers: []` |
 | Parallel subagent wrote entry | Include `subagent_id`; parent merges later |
+| Artifact revised without journal | ERROR — write revision entry before claiming done |
 
 ---
 

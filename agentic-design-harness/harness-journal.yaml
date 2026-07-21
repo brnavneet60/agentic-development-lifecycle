@@ -9,7 +9,7 @@
 version: "1.0.0"
 
 paths:
-  project_root: "agents-output/{slug}"
+  project_root: "agents-output/agentic-design-harness/{slug}"
   journal_dir: "{project_root}/journal/"
   journal_index: "{project_root}/journal/INDEX.yaml"
   steps_dir: "{project_root}/context/steps/"

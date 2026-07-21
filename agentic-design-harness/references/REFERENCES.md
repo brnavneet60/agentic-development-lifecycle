@@ -7,6 +7,7 @@ Load only what the current skill requires.
 | (root) | OFFLINE-CURATION.md | harness-sources.yaml, curation jobs |
 | context-management | CONTEXT-MANAGEMENT.md | manage-design-context, harness-context.yaml |
 | context-management | JOURNAL-AND-PARALLEL.md | write-design-journal, merge-parallel-research |
+| curation-sources | CURATION-SOURCES.md | offline curation provenance and refresh |
 | design-patterns | DESIGN-PATTERNS.md | classify-design-pattern |
 | benchmark-matrix | BENCHMARK-MATRIX.yaml | model-selection, capture-business-flow |
 | model-catalog | MODEL-CATALOG.yaml | model-selection |

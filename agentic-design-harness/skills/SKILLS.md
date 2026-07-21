@@ -2,6 +2,8 @@
 
 Execute **in order**. Run `manage-design-context` **before** each step; `write-design-journal` **after** each step.
 
+**Output standards:** `../../agentic-design-harness-hld/OUTPUT-STANDARDS.md`
+
 | # | Skill | Checkpoint After? | Output |
 |---|-------|-------------------|--------|
 | 0 | [manage-design-context](./manage-design-context/SKILL.md) | No | Context package + manifest |
@@ -15,7 +17,7 @@ Execute **in order**. Run `manage-design-context` **before** each step; `write-d
 | 7 | [select-agent-framework](./select-agent-framework/SKILL.md) | No | Framework YAML (+ refine after step 6) |
 | 8 | [design-guardrails-security](./design-guardrails-security/SKILL.md) | **Yes** | Guardrails YAML + journal |
 | 9 | [design-observability-value-loops](./design-observability-value-loops/SKILL.md) | **Yes** | Observability YAML + rollup-through-09 |
-| 10 | [generate-design-artifact](./generate-design-artifact/SKILL.md) | No | Final artifact + journal |
+| 10 | [generate-design-artifact](./generate-design-artifact/SKILL.md) | No | Final `<slug>.md` + journal |
 | * | [write-design-journal](./write-design-journal/SKILL.md) | — | Runs after every step above |
 
 ## Activation

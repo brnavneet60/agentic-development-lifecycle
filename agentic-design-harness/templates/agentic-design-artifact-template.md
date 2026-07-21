@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary
 
-{{3-5 sentences: domain problem, pattern, primary model with benchmark rationale, tools/MCP approach, framework, hosting, cost/compute range, key guardrails}}
+{{3-5 sentences in business language for leadership audience: business problem, operating impact, recommended architecture in plain words, expected value outcomes, and top risks/controls}}
 
 ---
 
@@ -30,6 +30,12 @@
 ### Current Challenges
 
 - {{challenge}}
+
+---
+
+## 2A. Business Problem Statement
+
+{{Clearly describe the business domain, who experiences the problem, why the current process is costly/slow/risky, and why leadership should care. Avoid generic chatbot wording.}}
 
 ---
 
@@ -130,14 +136,16 @@
 
 | Attribute | Value |
 |-----------|-------|
-| Pattern ID | {{pattern.id}} |
+| Operating model (plain language) | {{pattern.business_name}} |
+| Technical pattern reference (optional) | {{pattern.id}} |
 | Pattern Name | {{pattern.name}} |
 | Complexity | {{pattern.complexity}} |
 | HITL overlay | {{pattern.overlays.hitl}} |
 | Sync / Async | {{pattern.execution.sync_async}} |
 | Orchestration | {{pattern.execution.orchestration}} |
 | Agent communication | {{pattern.execution.communication}} |
-| Rationale | {{pattern.rationale}} |
+| Business rationale | {{pattern.business_rationale}} |
+| Technical rationale | {{pattern.rationale}} |
 
 ### 8.1 Resilience
 
@@ -179,7 +187,8 @@
 ## 10. Model Recommendations (Benchmark-Aware)
 
 **Selection method:** 55% benchmark fit + 35% KPI + 10% compliance  
-**Trusted sources:** {{pricing_verified_date}} — see `references/trusted-sources/TRUSTED-SOURCES.md`
+**Pricing / benchmark verification date:** {{pricing_verified_date}}  
+Cite vendor pricing and independent leaderboards by URL in §25 (e.g. Artificial Analysis, LMArena, Hugging Face Open LLM Leaderboard) — do not cite harness markdown as evidence.
 
 ### 10.1 Task Profile & Weights
 
@@ -337,6 +346,44 @@
 
 ---
 
+## 20A. Delivery Approach, Timeline, Cost, and Effort
+
+| Phase | Scope | Timeline | Outcome |
+|-------|-------|----------|---------|
+| Phase 0 | | | |
+| Phase 1 | | | |
+| Phase 2 | | | |
+
+| Workstream | Best Case | Likely | Worst Case |
+|-----------|-----------|--------|------------|
+| Discovery / design | | | |
+| Integration build | | | |
+| Security / guardrails | | | |
+| Evaluation / dashboards | | | |
+
+| Cost Area | Low | Likely | High |
+|-----------|-----|--------|------|
+| Inference | | | |
+| Integration / platform | | | |
+| Evaluation / observability | | | |
+| Delivery team | | | |
+
+---
+
+## 20B. Team and Skills Required
+
+| Role | Count | Why Needed |
+|------|-------|------------|
+| Product manager | | |
+| Architect | | |
+| AI / agent engineer | | |
+| Backend engineer | | |
+| Data / eval engineer | | |
+| Security engineer | | |
+| Operations SME | | |
+
+---
+
 ## 21. Loop Engineering
 
 | Loop | Enabled | Details |
@@ -346,6 +393,12 @@
 | Eval / golden suite | | |
 | Continuous improvement | cadence, owner | |
 | Cost feedback | | |
+
+---
+
+## 21A. Evolution and Feedback Mechanism
+
+{{Explain how the agentic capability evolves over time: pilot → selective automation → broader scope → self-serve or scaled platform. Include business, operational, and engineering feedback loops plus governance cadence.}}
 
 ---
 
@@ -361,16 +414,22 @@
 
 ## 23. Risks, Assumptions & Open Questions
 
-| Risk | Mitigation |
-|------|------------|
-| Benchmark proxy ≠ your data | Run eval on SD1–SDn and RD1–RDn scenarios |
-| Peak traffic underestimated | Load test at peak_factor × avg |
-| Compliance gap | Legal review of vendor DPAs |
-| KB staleness | Re-index triggers defined |
+| Risk | Mitigation | Owner | Trigger |
+|------|------------|-------|---------|
+| Benchmark proxy ≠ your data | Run eval on SD1–SDn and RD1–RDn scenarios | | |
+| Peak traffic underestimated | Load test at peak_factor × avg | | |
+| Compliance gap | Legal review of vendor DPAs | | |
+| KB staleness | Re-index triggers defined | | |
 
-### Open Questions for Stakeholders
+### Open Decisions for Business Owners
 
 - {{open_question}}
+
+### Recommended defaults (Assumption — planning default)
+
+| Decision | Assumed default | Reasoning | Validate with |
+|----------|-----------------|-----------|---------------|
+| {{q}} | {{default}} | {{why}} | {{owner}} |
 
 ### Eval Checklist (Pre-Production)
 
@@ -384,11 +443,53 @@
 
 ## 24. Next Steps
 
+- [ ] Validate assumed defaults with product / risk / compliance
 - [ ] POC with primary model on SD1
 - [ ] Stress-test RD scenarios
 - [ ] Procurement / GPU sizing validation
 - [ ] If Kagent selected → run **kagent-design-harness** on this artifact
 - [ ] Implement observability dashboards and value KPI baselines
+
+---
+
+## 25. References & Evidence Register
+
+> Tags: **Primary** | **Secondary** | **Assumption**  
+> **Citation rule:** Primary/Secondary sources must be external credible URLs (industry case study, white paper, research paper, standards body, or vendor eng write-up).  
+> Never cite harness paths (`references/*.md`, skill files). If research used an offline curated pack, cite the original web `source_url` the pack was curated from.
+
+| Design choice / KPI | Evidence type | Source (https URL) |
+|---------------------|---------------|--------------------|
+| {{decision}} | Primary / Secondary / Assumption | {{https://...}} |
+
+**Provenance:** State whether a live stakeholder interview was conducted, or that the flow was reconstructed from public patterns + assumptions.
+
+---
+
+## Appendix A — Interview Coverage Matrix
+
+Map harness Step 1 Blocks A–H (and note Steps 5–8 interview gaps).
+
+| Block | Topic | Blueprint section | Status (✅ / ⚠️ / ❌ / 🔶 Assumption) |
+|-------|-------|-------------------|--------------------------------------|
+| A | Domain / problem / goal | | |
+| B | Actors / systems | | |
+| C | Sunny scenarios | | |
+| D | Rainy scenarios | | |
+| E | Volume / latency | | |
+| F | Region / compliance | | |
+| H | Process nuances | | |
+| G | Flow synthesis confirmed | | |
+
+---
+
+## Appendix B — Engineering Mapping
+
+- Router / specialist topology
+- Safety-first ordering
+- Configurable vs specialized (by phase)
+- Durable multi-turn state + retention
+- Observability and evaluation integration
 
 ---
 
@@ -400,3 +501,4 @@
 | Rainy day | Edge case, failure, or abuse scenario |
 | Composite score | Blended benchmark + KPI + compliance score |
 | MCP | Model Context Protocol — standardized tool interface for agents |
+| Assumption — planning default | Unconfirmed default used for sizing; must be validated before build |

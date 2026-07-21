@@ -25,9 +25,9 @@ Use **only** these source classes when researching models in Step 4. Flag anythi
 
 | Source | Use For |
 |--------|---------|
-| `references/compute-sizing/COMPUTE-SIZING.md` | VRAM formulas |
-| Hugging Face model cards | Parameter count, context length |
-| NVIDIA / cloud GPU docs | Instance types |
+| NVIDIA GPU / cloud instance docs (cite vendor URL in artifact) | Instance types, VRAM |
+| Hugging Face model cards (per-model URL) | Parameter count, context length |
+| Offline pack `compute-sizing` | Local formulas only — when citing in an artifact, publish the upstream web URL used to curate the formula, not the local `.md` path |
 
 ## Do NOT Use as Primary Evidence
 
@@ -41,3 +41,8 @@ Use **only** these source classes when researching models in Step 4. Flag anythi
 1. Check vendor pricing page (date in artifact)
 2. Cross-check Artificial Analysis or vendor benchmark sheet
 3. Note `pricing_verified_date` in output
+
+## Offline curation source map
+
+For non-model offline reference curation (patterns, frameworks, memory/knowledge, guardrails),
+use `references/curation-sources/CURATION-SOURCES.md` and record `source_url` in curated artifacts.
