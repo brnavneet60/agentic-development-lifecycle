@@ -3,7 +3,8 @@
 **Flow:** {{flow.display_name}}  
 **Domain:** {{flow.domain.industry}}  
 **Date:** {{date}}  
-**Harness Version:** 1.0.0  
+**Harness Version:** 1.3.0  
+**Artifact type:** Executive High-Level Design (leadership audience)  
 **Author:** {{author}}
 
 ---

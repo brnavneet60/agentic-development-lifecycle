@@ -1,0 +1,93 @@
+#This Text will provide a complete end to end context on what we need harness for agentic AI.
+
+## Goals
+1. Understanding the Business Flow , Analysing and find nuances of the process
+for example: - 
+what are the Actors involved in the process? 
+How is it being done today?
+what resources are used? 
+Sunny/rainy day scenarios?
+What is the Goal of the process?
+what must be the KPIs on which the process is measured?
+does it require any 3rd party vendor interface?
+are there any security compliance?
+are there any regulatory compliances?
+any legal compliances?
+what are the low , medium , high critical parts of the process?
+which parts require low and high latency?
+are there any documentations or any knowldge base available?
+does the process involve customers or end users outside the organization?
+2. Defining a High Level Agentic Architecture which covers
+ a. Model selection
+    i. based on business flow , considering all use cases. identify the right Model.
+    ii. considering the model benchmark
+    iii. mapping model capability to business flow requirement.
+    iv. Analysing both open weight and enterprise models.
+    v. This research must happen from trusted sources. not from any article on internet. but from trusted sources.
+    vi. The cost to use the model. if its open weight self hosted , what is the cost for hosting it based on defined business flow.
+    vii. if its exterprise , based on token usage.
+    viii. the model selection must consider all everything that must be done to achieve the agentic AI.
+         there can be multiple model. if agentic ai needs RAG , we may need embedding model. for small flow we may need a small open model. for heavy weight flow we may beed enterprise model.
+         one e2e business flow may have may internal agents and flows.
+     ix. during this , do not assume if you do not know , ask user for mroe information.    
+  b. tools
+    i. identify how many tools are needed. 
+    ii. do we need mcp or APIs?
+    iii. if there are existing mcp or needs to develop?
+    iv.  ask user for more information if required.
+  c. Memory.
+    i. do we need long term or short term memory?
+    ii. whih memory pattern is required per agent.
+    iii. what are suitable databases.
+
+  d. Knowledge base.
+    i. do we already have knowledge base.
+    ii. what type of knowldge base?
+    iii. do we need RAG , GraphRAG?
+    iv. do we need onthology?
+    v. as user for more question on knowldge base , do not assume.
+    vi. identify what needs to be done w.r.t context management.
+    vii. can we do something to optimize tokens like compaction?
+    viii. how the embedding will be done?
+
+  e. define agentic design pattern.
+      i. how many agent
+      ii. sync or async
+      iii. communication between them.
+      iv. desgin pattern , cirtuit breaker , retries ,timeouts , etc ..
+       v. do we need orchestration?
+
+   f. Agent development framework.
+      i. which framework to use langgraph , crewAI etc.
+      ii.  one or many can be selected.
+
+  g. Guardrails.
+     i. cost Guardrails
+     ii. PII data guardrails.
+     iii. prompt guards.
+     iv. LLM load balancing.
+     v. other guardrails like what is acceptable , what is not.
+
+   h. security
+     i. protocol
+     ii. secrets
+     iii. tls/https
+     iv. certificates and token management.
+     v. data protection
+
+   i. observability
+     i. metrics , logs , Traces.
+     ii. key measurement indicators like latency , performance , resource utlization business KPIs.
+     iii. dashboards , alerts.
+
+   j . Value reporting.
+     i. what are KPIs to measure business success.
+     ii. how can they be measure.
+     iii. what needs to be done to create those Indicators.
+     iv. dashbards.
+
+    k. Loop engineering.     
+
+
+
+

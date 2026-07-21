@@ -208,7 +208,7 @@ skills:
       decisions: [artifact_path, open_questions_included]
       summary_fields: [artifact path, harness version]
     isolate:
-      warm: [agentic-design-artifact.md]
+      warm: ["<slug>.md"]
     reads:
       - rollup-through-09.yaml              # not individual step files
       - pointers to warm tier as needed

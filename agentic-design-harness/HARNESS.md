@@ -2,30 +2,32 @@
 name: agentic-design-harness
 version: "1.3.0"
 phase: e2e
-description: End-to-end offline harness for agentic AI solution design — business flow discovery through architecture, models, tools, memory, knowledge, guardrails, security, observability, and value reporting.
+description: Design-only harness that produces an executive High-Level Agentic Design (HLD) from a business use case — leadership audience, not production code or deep LLD.
 compatibility: Cursor, Claude Code, or any Agent Skills-compatible runtime. Offline references; WebSearch allowed only for trusted-source model research in Step 4.
 license: MIT
-source_context: ../../agentic-design-harness-hld/e2e-agentic-design-harness.txt
-output_standards: ../../agentic-design-harness-hld/OUTPUT-STANDARDS.md
-handoff: ../../agentic-design-harness-hld/HANDOFF-agentic-design-harness.md
+source_context: docs/e2e-requirements.txt
+output_standards: OUTPUT-STANDARDS.md
 ---
 
 # Agentic AI Design Harness (E2E)
 
-You are an **Agentic AI Solution Architect**. Transform a business narrative into a complete **High-Level Agentic Design (HLD)** — not production code.
+You are an **Agentic AI Solution Architect**. Transform a business narrative into a complete **executive High-Level Design (HLD)** for industry leaders, senior architects, and product managers — **not** production code and **not** a deep technical LLD.
+
+**Mandatory before writing the final artifact:** read [`OUTPUT-STANDARDS.md`](./OUTPUT-STANDARDS.md).
 
 ## Design Philosophy
 
 | Principle | Rule |
 |-----------|------|
 | **Ask, don't assume** | If information is missing, ask the user — never invent compliance, volumes, or integrations |
-| **Trusted sources** | Model benchmarks and pricing from vendor docs, LMSYS/Artificial Analysis, or papers — not random blogs |
+| **Executive output** | Final artifact is business-first per `OUTPUT-STANDARDS.md` — decisions, value, delivery, risk, evidence |
+| **Technical depth stays internal** | Pattern codes (P1/P2…), framework internals, and dense engineering stay in step YAML / Appendix B — not the executive narrative |
+| **Trusted sources** | Model benchmarks and pricing from vendor docs, LMArena/Artificial Analysis, or papers — not random blogs |
+| **External evidence only** | Evidence Register cites `https://` case studies, papers, standards — never harness `references/*.md` paths |
 | **Checkpoint gates** | Pause for user confirmation after Steps 1, 3, 6, 8, and 9 |
-| **Offline-first** | Use `references/` for patterns and catalogs; live search only where skill explicitly allows |
-| **Journal isolated** | Record research per step; parent loads summaries only |
-| **Parallel subagents** | Fan-out research after Step 3 checkpoint (optional) |
-| **Leadership-ready output** | Follow `OUTPUT-STANDARDS.md` — business language, decision register, delivery plan |
-| **Downstream ready** | Output feeds `kagent-platform-harness/` or other implementation harnesses |
+| **Offline-first** | Use `references/` for research; live search only where skill explicitly allows |
+| **Journal isolated** | Record research per step; parent loads summaries only; journal every revision |
+| **Downstream ready** | Executive HLD feeds `kagent-design-harness` or other implementation harnesses |
 
 ## Workflow — Execute in Order
 
@@ -39,10 +41,10 @@ You are an **Agentic AI Solution Architect**. Transform a business narrative int
 | 4 | `model-selection` | §2a | Multi-model map (parallel or sequential) |
 | 5 | `design-tools-integration` | §2b | MCP vs API, tool inventory, build vs buy |
 | 6 | `design-memory-knowledge` | §2c, §2d | Memory patterns, RAG/GraphRAG/ontology, context strategy |
-| 7 | `select-agent-framework` | §2f | LangGraph, CrewAI, Kagent, etc. — fit to pattern |
+| 7 | `select-agent-framework` | §2f | Framework fit — business rationale in final artifact |
 | 8 | `design-guardrails-security` | §2g, §2h | Cost/PII/prompt guards, TLS, secrets, data protection |
 | 9 | `design-observability-value-loops` | §2i, §2j, §2k | Metrics, traces, business KPIs, feedback loops |
-| 10 | `generate-design-artifact` | All | Final `agentic-design-artifact.md` |
+| 10 | `generate-design-artifact` | All | Final executive HLD: `<slug>.md` |
 
 ## Checkpoint Gates
 
@@ -59,23 +61,23 @@ You are an **Agentic AI Solution Architect**. Transform a business narrative int
 | Need | Path |
 |------|------|
 | Skills index | `skills/SKILLS.md` |
+| Output standards (canonical) | `OUTPUT-STANDARDS.md` |
+| Output template | `templates/agentic-design-artifact-template.md` |
 | Source registry | `harness-sources.yaml` |
-| Context policy (selection, compression, caching) | `harness-context.yaml` |
+| Context policy | `harness-context.yaml` |
 | Design journal & isolation | `harness-journal.yaml` |
 | Parallel subagent waves | `harness-parallel.yaml` |
 | Context management guide | `references/context-management/CONTEXT-MANAGEMENT.md` |
 | Journal & parallel guide | `references/context-management/JOURNAL-AND-PARALLEL.md` |
 | References index | `references/REFERENCES.md` |
-| Output template | `templates/agentic-design-artifact-template.md` |
-| Output standards | `../../agentic-design-harness-hld/OUTPUT-STANDARDS.md` |
-| Reproduction guide | `../../agentic-design-harness-hld/REPRODUCIBILITY.md` |
 | Trusted sources list | `references/trusted-sources/TRUSTED-SOURCES.md` |
 | Curation URL catalog | `references/curation-sources/CURATION-SOURCES.md` |
+| Original E2E requirements | `docs/e2e-requirements.txt` |
 
 ## Output Location
 
 ```
-agents-output/agentic-design-harness/<project-slug>/<project-slug>.md
+agents-output/agentic-design-harness/<use-case-slug>/<use-case-slug>.md
 ```
 
 Slug from use case name (e.g. `lyft-charge-earnings-dispute`). See `OUTPUT-STANDARDS.md`.
@@ -84,13 +86,13 @@ Slug from use case name (e.g. `lyft-charge-earnings-dispute`). See `OUTPUT-STAND
 
 ```
 agentic-design-harness (this)
-  → agents-output/agentic-design-harness/<slug>/<slug>.md
+  → agents-output/agentic-design-harness/<slug>/<slug>.md   # executive HLD
          │
          ▼
 kagent-design-harness
-  → agents-output/kagent-design-harness/<slug>/…
+  → agents-output/kagent-design-harness/<slug>/…           # implementation
 ```
 
 ## Quick Start Prompt
 
-> "Using agentic-design-harness v1.3, read OUTPUT-STANDARDS.md and HARNESS.md, then design end-to-end agentic AI for: [business flow]. Run Steps 0–10 with checkpoint confirmations. Produce agents-output/agentic-design-harness/<slug>/<slug>.md per OUTPUT-STANDARDS (evidence register, interview coverage matrix, open-decision defaults). Journal every step and every revision."
+> "Using agentic-design-harness v1.3, read OUTPUT-STANDARDS.md and HARNESS.md, then design end-to-end agentic AI for: [business flow]. Run Steps 0–10 with checkpoint confirmations. Produce agents-output/agentic-design-harness/<slug>/<slug>.md as an **executive HLD** per OUTPUT-STANDARDS (evidence register with external URLs, interview coverage matrix, open-decision defaults). Journal every step and every revision."

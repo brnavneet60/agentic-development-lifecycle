@@ -1,8 +1,9 @@
-# Skills Index — E2E v1.2.0
+# Skills Index — E2E v1.3.0
 
 Execute **in order**. Run `manage-design-context` **before** each step; `write-design-journal` **after** each step.
 
-**Output standards:** `../../agentic-design-harness-hld/OUTPUT-STANDARDS.md`
+**Final artifact:** executive HLD for leaders / PMs / architects — see [`../OUTPUT-STANDARDS.md`](../OUTPUT-STANDARDS.md).  
+Step YAML may stay technical; the Step 10 markdown must not.
 
 | # | Skill | Checkpoint After? | Output |
 |---|-------|-------------------|--------|
@@ -17,7 +18,7 @@ Execute **in order**. Run `manage-design-context` **before** each step; `write-d
 | 7 | [select-agent-framework](./select-agent-framework/SKILL.md) | No | Framework YAML (+ refine after step 6) |
 | 8 | [design-guardrails-security](./design-guardrails-security/SKILL.md) | **Yes** | Guardrails YAML + journal |
 | 9 | [design-observability-value-loops](./design-observability-value-loops/SKILL.md) | **Yes** | Observability YAML + rollup-through-09 |
-| 10 | [generate-design-artifact](./generate-design-artifact/SKILL.md) | No | Final `<slug>.md` + journal |
+| 10 | [generate-design-artifact](./generate-design-artifact/SKILL.md) | No | Executive `<slug>.md` + journal |
 | * | [write-design-journal](./write-design-journal/SKILL.md) | — | Runs after every step above |
 
 ## Activation

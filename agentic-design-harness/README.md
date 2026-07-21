@@ -1,85 +1,134 @@
-# Agentic AI Design Harness — E2E v1.3
+# Agentic Design Harness
 
-An **offline harness** for end-to-end agentic AI solution design from business flows. Built on [Agent Harnesses](https://agentharnesses.io) and [Agent Skills](https://agentskills.io).
+**Version:** 1.3.0  
+**Audience of the artifact:** industry leaders, senior architects, product managers
 
-## Documentation (handoff package)
+Design-only harness that turns a business use case into an **executive High-Level Design (HLD)** — not production agent code, and not a deep LLD.
 
-| Document | Path |
-|----------|------|
-| Handoff (start here) | `../../agentic-design-harness-hld/HANDOFF-agentic-design-harness.md` |
-| Reproduction guide | `../../agentic-design-harness-hld/REPRODUCIBILITY.md` |
-| Output standards (v1.1) | `../../agentic-design-harness-hld/OUTPUT-STANDARDS.md` |
-| Requirements | `../../agentic-design-harness-hld/e2e-agentic-design-harness.txt` |
-| E2E HLD (approved) | `../../agentic-design-harness-hld/hld-e2e-agentic-design-harness-v1.md` |
-| Maturity roadmap | `../../agentic-design-harness-hld/harness-maturity-roadmap-v1.2.md` |
+Built on [Agent Harnesses](https://agentharnesses.io) and [Agent Skills](https://agentskills.io).
 
-## What it does
+---
 
-Given a business use case, the harness runs a **10-step workflow** (plus Step 0 context + journal) and produces a leadership-ready design document:
+## What you get
 
-```
-agents-output/agentic-design-harness/<use-case-slug>/<use-case-slug>.md
-```
+| | |
+|--|--|
+| **Primary output** | Leadership-ready design memo: problem, decisions, value, delivery, risk, evidence |
+| **Path** | `agents-output/agentic-design-harness/<use-case-slug>/<use-case-slug>.md` |
+| **Tone** | Business language first; engineering detail only in Appendix B |
+| **Not the goal** | Framework dumps, pattern codes in the narrative, or implementation specs |
 
-| Step | Output |
-|------|--------|
-| 1 | Business flow, scenarios, compliance, process nuances |
-| 2 | Design pattern (plain language + technical mapping) |
-| 3 | Weighted KPI profile |
-| 4 | Multi-model map, benchmarks, hosting, cost |
-| 5 | Tools inventory, MCP vs API |
-| 6 | Memory, knowledge, context strategy |
-| 7 | Agent framework |
-| 8 | Guardrails and security |
-| 9 | Observability, value KPIs, feedback loops |
-| 10 | Final design artifact |
+Contract: [`OUTPUT-STANDARDS.md`](./OUTPUT-STANDARDS.md)
 
-**Checkpoint gates** after Steps 1, 3, 6, 8, and 9.
+---
 
 ## Quick start
 
+In Cursor (or any Agent Skills runtime):
+
 ```
-Using agentic-design-harness v1.3, read HARNESS.md and
-../../agentic-design-harness-hld/OUTPUT-STANDARDS.md (v1.1).
+Using agentic-design-harness v1.3, read HARNESS.md and OUTPUT-STANDARDS.md.
 
-Design end-to-end agentic AI for: [your business use case]
+Design end-to-end agentic AI for: [business use case]
 
-Produce agents-output/agentic-design-harness/<slug>/<slug>.md with Evidence Register,
-Interview Coverage Matrix, and open-decision planning defaults.
-Journal every step and every revision.
+Run Steps 0–10 with checkpoint confirmations after 1, 3, 6, 8, 9.
+Write agents-output/agentic-design-harness/<slug>/<slug>.md per OUTPUT-STANDARDS
+(Evidence Register with external https URLs, Interview Coverage Matrix,
+open-decision planning defaults). Journal every step and every revision.
 ```
 
-## Structure
+Bootstrap folders (from your KAIF workspace root):
+
+```bash
+HARNESS=agentic-design-harness
+SLUG=your-use-case-slug
+mkdir -p "agents-output/$HARNESS/$SLUG"/{context/steps,journal/entries,journal/payloads,parallel,curated}
+```
+
+---
+
+## Workflow (10 design steps)
+
+| Step | Skill | Produces (for the executive artifact) |
+|------|-------|----------------------------------------|
+| 0 | `manage-design-context` | Context package for the next skill |
+| 1 | `capture-business-flow` | Domain, flow, sunny/rainy scenarios · **checkpoint** |
+| 2 | `classify-design-pattern` | Operating model (plain language; codes stay internal) |
+| 3 | `define-kpis` | Leadership KPI profile · **checkpoint** |
+| 4 | `model-selection` | Model mix, cost band, hosting stance |
+| 5 | `design-tools-integration` | Integrations and write/read boundaries |
+| 6 | `design-memory-knowledge` | Retention, knowledge, context strategy · **checkpoint** |
+| 7 | `select-agent-framework` | Framework recommendation (business rationale) |
+| 8 | `design-guardrails-security` | Threat model, authZ, rollback · **checkpoint** |
+| 9 | `design-observability-value-loops` | Eval gates, value loops · **checkpoint** |
+| 10 | `generate-design-artifact` | Final `<slug>.md` |
+
+After every step: `write-design-journal`. After every rewrite: revision journal entry.
+
+Skills index: [`skills/SKILLS.md`](./skills/SKILLS.md) · Entry: [`HARNESS.md`](./HARNESS.md)
+
+---
+
+## Repository layout
 
 ```
 agentic-design-harness/
-├── HARNESS.md
-├── harness-sources.yaml      # v1.2 — online/offline sources + curation jobs
-├── harness-context.yaml      # per-skill context policy
-├── harness-journal.yaml      # journal + isolation
-├── harness-parallel.yaml     # optional parallel waves
-├── skills/                   # 14 skills (see skills/SKILLS.md)
-├── references/
-│   └── curation-sources/CURATION-SOURCES.md
+├── README.md                 ← this file
+├── HARNESS.md                ← runtime entry + philosophy
+├── OUTPUT-STANDARDS.md       ← executive artifact contract (canonical)
+├── docs/
+│   └── e2e-requirements.txt  ← original E2E interview / design goals
+├── harness-sources.yaml
+├── harness-context.yaml
+├── harness-journal.yaml
+├── harness-parallel.yaml
+├── skills/                   ← 14 skills
+├── references/               ← offline catalogs (cite source_url in Evidence Register)
 └── templates/
     └── agentic-design-artifact-template.md
 ```
 
-Load all four YAML configs at bootstrap (Step 0).
+Load the four `harness-*.yaml` files at bootstrap (Step 0).
 
-## Pilot reference
+---
 
-`../../agents-output/agentic-design-harness/lyft-charge-earnings-dispute/lyft-charge-earnings-dispute.md`
+## Output location
+
+```
+KAIF/agents-output/
+└── agentic-design-harness/
+    └── <use-case-slug>/
+        ├── <use-case-slug>.md    # executive HLD
+        └── journal/              # step + revision trail
+```
+
+Pilot example: `../../agents-output/agentic-design-harness/lyft-charge-earnings-dispute/`
+
+---
 
 ## Downstream
 
 ```
-agentic-design-harness  →  agents-output/agentic-design-harness/<slug>/<slug>.md
+agentic-design-harness
+  → executive HLD (<slug>.md)
          │
          ▼
-kagent-design-harness →  agents-output/kagent-design-harness/<slug>/…
+kagent-design-harness (or other implementation harness)
+  → build / deploy on Kubernetes
 ```
+
+This harness stops at design. Implementation is a separate harness.
+
+---
+
+## Evidence rules (summary)
+
+- Evidence Register cites **external** `https://` sources (case studies, papers, NIST/OWASP, vendor eng docs).
+- Never cite harness `references/*.md` as evidence — those are lookup indexes.
+- If a claim came from an offline curated pack, cite the pack’s original web `source_url`.
+
+---
 
 ## Disclaimer
 
-Model pricing, benchmarks, and GPU sizing are **indicative**. Verify against trusted sources before procurement.
+Model pricing, benchmarks, and GPU sizing in reference catalogs are **indicative**. Verify against vendor pages before procurement.

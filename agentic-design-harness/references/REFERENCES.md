@@ -1,6 +1,7 @@
-# References Index — E2E v1.0.0
+# References Index — E2E v1.3.0
 
-Load only what the current skill requires.
+Load only what the current skill requires.  
+**Citation rule for the final artifact:** cite original external `https://` URLs in the Evidence Register — never cite these files as evidence.
 
 | Directory | File | Used By |
 |-----------|------|---------|
@@ -24,7 +25,8 @@ Load only what the current skill requires.
 
 | Reference | Version |
 |-----------|---------|
-| Harness | 1.0.0 |
+| Harness | 1.3.0 |
+| OUTPUT-STANDARDS | 1.1 |
 | BENCHMARK-MATRIX | 0.2.0 |
 | MODEL-CATALOG | 0.1.0 |
 

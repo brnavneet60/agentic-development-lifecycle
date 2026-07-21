@@ -13,7 +13,7 @@ metadata:
 
 Produce the final High-Level Design markdown combining Steps 1–9 for a **leadership audience** (industry leaders, senior architects, product managers).
 
-**Mandatory:** read `../../agentic-design-harness-hld/OUTPUT-STANDARDS.md` (v1.1+) before writing.
+**Mandatory:** read `../OUTPUT-STANDARDS.md` (v1.1+) before writing.
 
 ## Audience rules
 
@@ -21,14 +21,14 @@ Produce the final High-Level Design markdown combining Steps 1–9 for a **leade
 - Every major decision includes business reasoning, trade-off, and why chosen.
 - No harness pattern codes (`P1`, `P2`, …) in the main body.
 - Do **not** scatter source URLs through the executive narrative — put them in **References & Evidence Register**.
-- Technical detail goes in Appendix B (engineering mapping) or a companion technical doc.
+- Technical detail goes in Appendix B (engineering mapping) only — not a separate required companion doc.
 - Label unknowns as `Assumption — planning default`; never invent stakeholder-confirmed policy.
 
 ## Prerequisites
 
 - All step outputs (flow, pattern, kpis, models, tools, memory/knowledge, framework, guardrails/security, observability/value/loops)
 - `templates/agentic-design-artifact-template.md`
-- `OUTPUT-STANDARDS.md` v1.1+
+- `OUTPUT-STANDARDS.md` v1.1+ (harness root)
 
 ## Required sections (minimum)
 
@@ -67,7 +67,7 @@ agents-output/agentic-design-harness/<flow.slug>/<flow.slug>.md
 
 ```
 FUNCTION generateArtifact(slug, step_outputs):
-  LOAD OUTPUT-STANDARDS.md
+  LOAD ../OUTPUT-STANDARDS.md   # harness root
   LOAD templates/agentic-design-artifact-template.md
 
   WRITE leadership sections 1–21 using step_outputs
