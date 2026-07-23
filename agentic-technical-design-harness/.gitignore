@@ -1,0 +1,4 @@
+# Generated / local-only (do not commit run artifacts from this tree)
+.cache/
+*.pyc
+.DS_Store

@@ -1,0 +1,359 @@
+# Canonical runtime config — agentic-technical-design-harness
+# Source requirements: docs/e2e-requirement.txt
+# Specs: https://agentharnesses.io/specification · https://agentskills.io/specification
+
+name: agentic-technical-design-harness
+description: >
+  Produces a production-grade, cloud-native technical design document for agentic AI
+  on Kubernetes from a High-Level Executive requirement summary — evidence-backed,
+  with decision rationale, alternates, and ask-don't-assume gates.
+role: |
+  You are an Agentic AI Technical Architect. Transform an executive High-Level
+  requirement summary into a grounded, production-ready technical design for
+  agentic AI that is cloud-native and deployable on Kubernetes.
+
+  Prefer offline curated references first — especially `references/knowledgebase.md`
+  (id: knowledgebase). Escalate to online credible sources
+  (industry use cases, best practices, research/white papers, vendor primary docs)
+  when the task needs current versions, benchmarks, pricing, or missing evidence.
+
+  If anything in the requirement is unclear, ask the user — never invent compliance,
+  volumes, integrations, or security posture without approval.
+
+  Every design decision must include: business-use-case mapping, justification,
+  alternatives evaluated, and why the chosen option is recommended. Favor mature,
+  cloud-native open-source or licensed options with explicit technology evaluation.
+
+  Deliver only when OUTPUT-STANDARDS.md P0 checklist passes.
+
+# Harness root is this directory (when packaging / scaffolding).
+output_dir: .
+directories:
+  - name: docs
+    description: Original E2E requirements and companion notes
+    files:
+      - path: docs/e2e-requirement.txt
+        description: Source E2E requirement (copied from HLD folder)
+      - path: docs/RELATIONSHIP.md
+        description: Relationship to agentic-design-harness executive HLD
+        body: |
+          # Relationship to agentic-design-harness
+
+          | Harness | Audience | Artifact |
+          |---------|----------|----------|
+          | `agentic-design-harness` | Leaders / PMs / architects | Executive HLD |
+          | `agentic-technical-design-harness` (this) | Architects / platform / eng | Technical Design Document (TDD) |
+
+          Typical flow:
+
+          1. Executive requirement summary (or executive HLD) is the **input**.
+          2. This harness produces a deep technical design covering components,
+             models, tools, memory, context, KPIs, observability, eval, loops,
+             guardrails, identity, and frameworks — with K8s/cloud-native defaults.
+          3. Downstream implementation harnesses (e.g. kagent / platform) consume
+             the TDD.
+
+skills:
+  - name: clarify-requirements
+    description: >
+      Interview and clarify the executive High-Level requirement summary before
+      designing. Use as Step 1 when starting a technical design; ask for missing
+      compliance, volumes, actors, sunny/rainy scenarios, and constraints.
+    instructions: |
+      1. Read the user-provided executive requirement summary (or prior executive HLD).
+      2. Map coverage against e2e sections: actors, agents, data sources, compliance,
+         SLOs, regions, sunny/rainy scenarios, KPIs, identity, and deployment target.
+      3. Ask clarifying questions for gaps — do not invent. Label any planning defaults
+         as `Assumption — planning default` only after user approval or explicit default policy.
+      4. Write structured requirements YAML under the run workspace.
+      5. Checkpoint with the user before Step 2.
+
+  - name: design-components-patterns
+    description: >
+      Design agent topology, orchestration, skills, tools needs, statefulness,
+      knowledge bases, actors, and agent-to-agent hand-off patterns. Use as Step 2
+      after clarify-requirements.
+    instructions: |
+      Cover: agent count/roles/skills; single vs multi-agent; orchestration pattern;
+      stateful vs stateless; knowledge-base needs; data sources; MCP/tool surface;
+      actors; A2A communication and hand-off patterns.
+      For each major choice: business mapping, justification, alternates, recommendation.
+      Prefer cloud-native deployability on Kubernetes. Cite credible sources via
+      resolve-reference / fetch-online (LangGraph multi-agent, CrewAI, AutoGen, SK).
+
+  - name: select-models
+    description: >
+      Select per-agent (and optional routed) LLMs using benchmarks, cost, compliance,
+      and sunny/rainy objectives. Use as Step 3 after component topology is set.
+    instructions: |
+      Map Goals/roles/skills → model requirements (context window, tool calling,
+      reasoning, multimodal). Consider enterprise (OpenAI, Anthropic, Google, etc.)
+      and open-weight (Hugging Face, NVIDIA NIM). Use benchmarks: MMLU, DocVQA,
+      GPQA, MT-Bench, BFCL, SWE-bench Verified, HotpotQA, MMMU. Include token vs
+      self-host hardware cost. Simple agents may use smaller/distilled models with
+      explicit risk notes. Date-stamp pricing. Escalate fetch-online for live pricing.
+
+  - name: design-tools-mcp
+    description: >
+      Inventory agent tools, existing APIs/data sources, and decide MCP vs direct API.
+      Use as Step 4 after models (or in parallel after Step 2 if topology is stable).
+    instructions: |
+      For each agent: required tools, existing APIs, build vs buy, MCP server vs raw API.
+      Prefer reuse for multi-agent shared functions. Document auth scopes and blast radius.
+
+  - name: design-memory
+    description: >
+      Design short/long-term and working/episodic/semantic/procedural memory,
+      including GraphRAG options and retrieval. Use as Step 5 with context management.
+    instructions: |
+      Specify memory types per agent, store technology options (evaluate maturity),
+      retrieval strategy, TTL/retention, and token/cost optimization. Map to business cases.
+
+  - name: design-context-management
+    description: >
+      Design context engineering for token economics, quality, latency, reliability,
+      and scalability (selective, explicit, structured, tiered hot/warm/cold).
+      Use as Step 6 after or with memory design.
+    instructions: |
+      Apply principles: selective over quantity; explicit over implicit; structured
+      over unstructured; tiered storage; observability/tracing of context packs.
+      Reference LangChain context-engineering docs via fetch-online when needed.
+
+  - name: define-value-kpis
+    description: >
+      Define business and technical KPIs, collection/storage, and dashboard use.
+      Use as Step 7 once solution shape is clear.
+    instructions: |
+      Define KPI catalog, generation/collection/storage, owners, and dashboard views.
+      Tie each KPI to business outcomes and eval/observability wiring.
+
+  - name: design-observability
+    description: >
+      Design metrics, logs, and traces for agentic systems (OpenTelemetry-aligned).
+      Use as Step 8 with evaluation and continuous improvement.
+    instructions: |
+      Specify signals (metrics/logs/traces), how they are emitted, backends evaluated
+      (prefer OTel + cloud-native stack), and alert/SLO mapping. Cite OTel agent
+      observability guidance via fetch-online when needed.
+
+  - name: design-evaluation
+    description: >
+      Design offline (golden sets, LLM-as-judge) and online (runtime scoring) evaluation.
+      Use as Step 9 for continuous improvement inputs.
+    instructions: |
+      Cover offline golden-data collection from production, LLM-as-judge, online
+      decision/step scoring, feedback into loops, and real-world test plans.
+      Cite credible eval references (e.g. NVIDIA agent eval guidance).
+
+  - name: design-continuous-improvement
+    description: >
+      Design loop engineering and feedback loops for reliability. Use as Step 10
+      after evaluation strategy is defined.
+    instructions: |
+      Specify human feedback, HITL escape hatches, eval→retrain/prompt/tool loops,
+      iteration limits, and ownership. Cite loop-engineering primary sources.
+
+  - name: design-guardrails
+    description: >
+      Design PII, prompt-injection, model-usage, token, and cost/budget guardrails
+      aligned to business compliance. Use as Step 11 with identity design.
+    instructions: |
+      Map threats (OWASP LLM Top 10 / STRIDE as relevant) to controls. Link to
+      identity section. Prefer admission + request-time + runtime layers for K8s.
+
+  - name: design-identity-access
+    description: >
+      Design agent identity and access control for agent↔agent, agent↔MCP, and
+      agent↔LLM paths. Use as Step 12 with guardrails.
+    instructions: |
+      Prefer workload identity patterns suitable for Kubernetes (e.g. SPIFFE/SPIRE
+      concepts) over static keys. Scope least privilege. Document authZ matrices.
+
+  - name: select-agent-framework
+    description: >
+      Recommend agent frameworks (LangGraph, CrewAI, OpenAI Agents SDK, Google ADK,
+      MAF, etc.) per agent type with cloud-native maturity rationale. Use as Step 13
+      before final artifact.
+    instructions: |
+      Evaluate frameworks against topology, tooling, observability hooks, and K8s
+      deployability. Business + technical justification; list rejected alternates.
+
+  - name: generate-technical-design
+    description: >
+      Compile all steps into the technical design document using the output template
+      and OUTPUT-STANDARDS. Use as final Step 14 after checkpoint gates.
+    instructions: |
+      1. Read OUTPUT-STANDARDS.md and outputs/templates/default.md.
+      2. Compile Steps 1–13; fill every required section.
+      3. Every decision: business mapping, justification, alternates, recommendation.
+      4. Evidence Register with external https URLs only (never harness-internal paths).
+      5. Activate deliver-output to publish.
+
+references:
+  - id: e2e-requirement
+    type: doc
+    mode: offline
+    path: docs/e2e-requirement.txt
+    description: Source E2E requirement defining technical design sections
+
+  - id: output-standards
+    type: doc
+    mode: offline
+    path: OUTPUT-STANDARDS.md
+    description: Required TDD sections, language rules, evidence and quality bar
+
+  - id: knowledgebase
+    type: local_file
+    mode: offline
+    path: references/knowledgebase.md
+    description: >
+      Primary design brain (knowledgebase.md) — Building Applications with AI Agents:
+      Designing and Implementing Multiagent Systems. Covers agentic patterns,
+      tools/MCP, memory, orchestration, eval, monitoring, loops, protection, HITL.
+    when: >
+      Use for every TDD run as the primary offline design brain. Prefer its
+      principles for workflows-vs-agents, multiagent patterns, autonomy slider,
+      tool design, memory/knowledge, eval metrics, and guardrails. Cite the book
+      title + chapter in Evidence Register — not the local path alone.
+
+  - id: trusted-sources
+    type: local_file
+    mode: offline
+    path: references/offline/trusted-sources.md
+    description: Allowed source classes for benchmarks, pricing, and papers
+
+  - id: design-patterns-stub
+    type: local_file
+    mode: offline
+    path: references/offline/design-patterns.md
+    description: Offline stub for multi-agent pattern decision notes
+
+  - id: model-selection-stub
+    type: local_file
+    mode: offline
+    path: references/offline/model-selection.md
+    description: Offline stub for benchmark and cost considerations
+
+  - id: context-engineering-stub
+    type: local_file
+    mode: offline
+    path: references/offline/context-management.md
+    description: Offline stub for context-management principles
+
+  - id: langgraph-multi-agent
+    type: web_url
+    mode: online
+    url: https://langchain-ai.github.io/langgraph/concepts/multi_agent/
+    description: LangGraph multi-agent concepts and routing
+    when: Component/pattern design or framework comparison needs primary docs
+
+  - id: langchain-docs
+    type: web_url
+    mode: online
+    url: https://python.langchain.com/docs/introduction/
+    description: LangChain / LangGraph docs home
+    when: Framework or tool-integration research
+
+  - id: crewai-docs
+    type: web_url
+    mode: online
+    url: https://docs.crewai.com/
+    description: CrewAI documentation
+    when: Evaluating CrewAI as framework option
+
+  - id: autogen-docs
+    type: web_url
+    mode: online
+    url: https://microsoft.github.io/autogen/stable/
+    description: Microsoft AutoGen documentation
+    when: Evaluating AutoGen as framework option
+
+  - id: semantic-kernel-docs
+    type: web_url
+    mode: online
+    url: https://learn.microsoft.com/semantic-kernel/
+    description: Semantic Kernel documentation
+    when: Evaluating Semantic Kernel as framework option
+
+  - id: openai-pricing
+    type: web_url
+    mode: online
+    url: https://openai.com/api/pricing/
+    description: OpenAI API pricing
+    when: Model cost estimates need live pricing
+
+  - id: anthropic-pricing
+    type: web_url
+    mode: online
+    url: https://www.anthropic.com/pricing
+    description: Anthropic pricing
+    when: Model cost estimates need live pricing
+
+  - id: google-ai-pricing
+    type: web_url
+    mode: online
+    url: https://ai.google.dev/pricing
+    description: Google AI pricing
+    when: Model cost estimates need live pricing
+
+  - id: artificial-analysis
+    type: web_url
+    mode: online
+    url: https://artificialanalysis.ai/
+    description: Independent model leaderboards and price-performance
+    when: Cross-checking model quality/latency/cost
+
+  - id: lmarena
+    type: web_url
+    mode: online
+    url: https://lmarena.ai/
+    description: LMSYS Chatbot Arena / LMArena rankings
+    when: Subjective quality rankings for model selection
+
+  - id: hf-open-llm-leaderboard
+    type: web_url
+    mode: online
+    url: https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard
+    description: Hugging Face Open LLM Leaderboard
+    when: Open-weight model benchmark comparison
+
+  - id: langchain-context-engineering
+    type: web_url
+    mode: online
+    url: https://docs.langchain.com/oss/python/langchain/context-engineering
+    description: LangChain context engineering guidance
+    when: Designing context management strategy
+
+  - id: otel-ai-agent-observability
+    type: web_url
+    mode: online
+    url: https://opentelemetry.io/blog/2025/ai-agent-observability/#observability-and-beyond
+    description: OpenTelemetry AI agent observability guidance
+    when: Designing observability stack
+
+  - id: nvidia-agent-evaluation
+    type: web_url
+    mode: online
+    url: https://developer.nvidia.com/blog/mastering-agentic-techniques-ai-agent-evaluation/
+    description: NVIDIA guidance on AI agent evaluation
+    when: Designing offline/online eval strategy
+
+  - id: langchain-loop-engineering
+    type: web_url
+    mode: online
+    url: https://www.langchain.com/blog/the-art-of-loop-engineering
+    description: Loop engineering for reliable agents
+    when: Designing continuous improvement / feedback loops
+
+outputs:
+  format: markdown
+  standards_path: OUTPUT-STANDARDS.md
+  # Canonical body lives in outputs/templates/default.md (OUTPUT-STANDARDS shape).
+  # Keep a short stub here for deliverers that read config.template directly.
+  template: |
+    # See outputs/templates/default.md — OUTPUT-STANDARDS v1 required.
+    # Hard boundaries: sequence≠end-state; propose→authorize→execute; named models;
+    # Knowledge≠Memory; tool recall/param accuracy; AuthZ Authorize column; full Evidence URLs.
+  deliverers:
+    - type: local_file
+      path: agents-output/{{harness_name}}/{{slug}}/{{slug}}-technical-design.md

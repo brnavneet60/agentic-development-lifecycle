@@ -1,0 +1,155 @@
+this is requirement to build agentic harness to create a technical design document.
+
+# Goal
+The Goal of this harness is to create an end to end technical design document based on High Level Executive requirement summary document.
+The Technical design must cover all the technical aspect to develop agentic ai to solve a business problem.
+the harness must follow the industry standard and must be cloud native , deployable on kubernetes cluster.
+all the reference must be from credible sources on web. either it could be an industry use case , besgt practice , reseasrch paper or white paper.
+
+# Instructions
+The idea of building such harness is create a brain of an AI Architect. which will create a real grounded architecture , not just theoritical.
+if somehting in requirement is not clear , the harness must ask user questions. must not assume without approval.
+The end to end design must cover all the aspect to create Production Grade agentic AI.
+every topic covered in design must have design justification and reasoning , mapped to business use case , of selection and also and alternate option. and why the option was chosen or is recommended.
+
+
+# Component selection and design pattern
+this section must describe what component are required to build the agentic ai flow.
+how many agents are needed?
+how are they orchestrated?
+what is the role of each agent?
+what are the skills of each agent?
+what tools will it require?
+does nay agent require knowldge base?
+if the agent is stateful or stateless?
+what kind of memory is required?
+what are the data sources?
+what tools and mcp server is required?
+what is pattern to update knowldge base?
+if its single or multi agent?
+what is the design pattern of multi agent?
+what are the actors?
+what will agent to agent communication happen? is there any hand-off pattern?
+
+## references
+- LangGraph concepts and multi-agent routing: [https://langchain-ai.github.io/langgraph/concepts/multi_agent/](https://langchain-ai.github.io/langgraph/concepts/multi_agent/)
+- LangChain / LangGraph docs home: [https://python.langchain.com/docs/introduction/](https://python.langchain.com/docs/introduction/)
+- CrewAI docs: [https://docs.crewai.com/](https://docs.crewai.com/)
+- Microsoft AutoGen docs: [https://microsoft.github.io/autogen/stable/](https://microsoft.github.io/autogen/stable/)
+- Semantic Kernel docs: [https://learn.microsoft.com/semantic-kernel/](https://learn.microsoft.com/semantic-kernel/)
+
+# Model selection
+This section is to decide what will be the brain for agents.
+thee system could be single or multi agent. selecting the LLM based on business use case is very critical.
+this needs understanding of the Goals , role and skills of each agent. depending upon the pattern , context window , memory we need to decide what is the right model.
+there are enterprise models form openAI , Anthropic , google , deepseek , groq ,etc. and there are open source models from hugging face , Nvidia NIM ,etc.
+its important to consider all kind of models and their benchmark and map those to business cases.
+every agent may ahve its own LLM, it could even have more than one , which can be routed based on runtime.
+while selecting the model , its benchmark like MMLU (knowledge classification) , DocVQA , GPQA (graduate reasoning) , MT-Bench (writing quality) , Berkeley Function Calling Leaderboard (BFCL) , SWE-bench Verified , HotpotQA (multi-hop) , MMMU (multimodal understanding) , MT-Bench (multi-turn)  ,etc must be considered
+Another important aspect of the models is what will be cost of hosting open source LLMs or using enterprise llm with token usage.
+hosting a open source model incur Hardware cost.
+there may be an agent which does very simple and not so critical task , such agents can use cheapest or even distilled small models. but that must come with right considerations.
+Businesds KPIs , compliance and regulations , sunny and rainy day scenarios goals and objectives are very important consideration while selecting the model.
+## references
+- OpenAI pricing: [https://openai.com/api/pricing/](https://openai.com/api/pricing/)
+- Anthropic pricing: [https://www.anthropic.com/pricing](https://www.anthropic.com/pricing)
+- Google AI pricing: [https://ai.google.dev/pricing](https://ai.google.dev/pricing)
+- Artificial Analysis: [https://artificialanalysis.ai/](https://artificialanalysis.ai/)
+- LMSYS Chatbot Arena: [https://lmarena.ai/](https://lmarena.ai/)
+- Hugging Face Open LLM Leaderboard: [https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard](https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard)
+
+# tools
+this section decribes what tools will be required by which agent. are there any existing APIs , data source available?
+do we need to build an MCP or can API be directly used? soemtime mcp may not be needed , just api is ok. sometime some functions needs to be reusale for multiple agents.
+
+
+# memory
+what type of memory is required?
+short term  , Long term memory?
+how the memory is managed and retrieved?
+describe how  and what memory will be needed working , epidodic , semantic , procedural
+GraphRAG ,etc. 
+how will they be managed and retrived.
+what technology will be required? evalaute options.
+what consideration needs to be makde for token optimization and in turn cost optimization.
+
+# Context Management
+this section describes about
+a. Token economics - Cost of token usage
+b. Response Quality - focused context , putting the right information in the request
+c. latency - Larger prompts mean slower inference
+d. reliability - Unmanaged context leads to unpredictable behavior
+e. scalability
+Core principles of context Management
+a. selective over quantity
+b. epxlicit over implicit
+c. structured over unstructured
+d. tiered storage - hot , cold , warm.
+f. observability and tracing.
+
+reference - https://docs.langchain.com/oss/python/langchain/context-engineering
+
+# Value Measure KPIs
+This section describes what are the KPIs to measure and how will they be measured.
+how will they be generated , collected and stored.
+how will they be used.
+dashboards?
+
+#observability
+what metrics to monitor.
+metrics,  logs , traces.
+how will they be created and managed.
+evaluate technology.
+refrenece - https://opentelemetry.io/blog/2025/ai-agent-observability/#observability-and-beyond
+
+
+
+# Evalaution
+this section describes how an ai agent can be evaluated on various parameters.
+for continous imporvment of an agent , it is important to evaluate them so that they can be imporved.
+the evaluation can be offline and online.
+offline - how infomraiton from production is collected , stored and used as golden data set. using LLM as judge.
+online - how on runtime , agent decisions and steps are judged and scored.
+using this as feedback process.
+real world testing
+
+references - https://developer.nvidia.com/blog/mastering-agentic-techniques-ai-agent-evaluation/
+
+# Continous Imporvment.
+This section describes about loop engineering. how agents can be made reliable using feedbakc loops.
+reference - https://www.langchain.com/blog/the-art-of-loop-engineering
+
+#Guardrails
+this section must decribe about guardrails , which must be in place in aligned to security complaince of the business.
+the guardrails regarding PII , prompt injection , model usage control , token limitations , cost and budgets.
+this section will have link to security and identity management.
+
+
+# Identiy and Access management
+this section decribes how agent identity is managed.
+agent to agent communication and access control.
+agent to mcp access control.
+agent to LLM access control.
+
+
+#Agent Frameworks
+this section describe what will be the right agent framework to use as per type of agent.
+LangGraph
+CrewAI
+openAI SDK
+Google ADK
+MAF
+
+I want to re-enforce that every section decision must be backed with business usecase. the technoloigy evaluation is important.
+the evluation must be aligned with cloud native , it could be open source or licensed. the technology maturity is important.
+
+The Other aspects of production Grade Agentic AI like design trade-offs , scalability , modularity , Cost is important.
+
+
+
+
+
+
+
+
+
