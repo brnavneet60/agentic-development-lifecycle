@@ -2,7 +2,7 @@
 
 Execute **in order**. Run `manage-design-context` **before** each step; `write-design-journal` **after** each step.
 
-**Final artifact:** executive HLD for leaders / PMs / architects — see [`../OUTPUT-STANDARDS.md`](../OUTPUT-STANDARDS.md).  
+**Final artifact:** executive HLD for leaders / PMs / architects / CTO — see [`../OUTPUT-STANDARDS.md`](../OUTPUT-STANDARDS.md) **v1.2+**.  
 Step YAML may stay technical; the Step 10 markdown must not.
 
 | # | Skill | Checkpoint After? | Output |

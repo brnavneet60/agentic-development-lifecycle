@@ -46,6 +46,18 @@ sources:
     url_scope: [leaderboards, latency]
     rate_limit_per_step: 3
 
+  - id: web-book-albada-agents
+    mode: online
+    type: web_search
+    name: Albada Building Applications with AI Agents (O'Reilly)
+    enabled: true
+    authority: authoritative
+    urls:
+      - https://www.oreilly.com/library/view/building-applications-with/9781098176495/
+      - https://github.com/michaelalbada/BuildingApplicationsWithAIAgents
+    rate_limit_per_step: 2
+    description: Primary web URLs for the multiagent design knowledge base used by offline source `knowledgebase`
+
   - id: mcp-document-rag
     mode: online
     type: mcp
@@ -223,6 +235,21 @@ sources:
     created_at: "2026-07-06"
     version: "1.0.0"
     stale_after_days: 180
+
+  - id: knowledgebase
+    mode: offline
+    type: file
+    name: Building Applications with AI Agents (Albada) — design knowledge base
+    path: "{harness_root}/references/knowledgebase/knowledgebase.md"
+    created_from: web-book-albada-agents
+    created_at: "2026-07-23"
+    version: "1.0.0"
+    stale_after_days: 365
+    description: >
+      Local offline copy of Michael Albada, Building Applications with AI Agents
+      (O'Reilly). Self-contained in agentic-design-harness — do not reference
+      agentic-technical-design-harness paths. When citing in Evidence Register,
+      use the O'Reilly / GitHub URLs from created_from — not this file path.
 
   # --- Offline files derived from online sources (populated by curation_jobs) ---
 

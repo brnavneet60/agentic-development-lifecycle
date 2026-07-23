@@ -10,6 +10,8 @@ Use these URLs as primary evidence during curation and refresh jobs.
 - CrewAI docs: [https://docs.crewai.com/](https://docs.crewai.com/)
 - Microsoft AutoGen docs: [https://microsoft.github.io/autogen/stable/](https://microsoft.github.io/autogen/stable/)
 - Semantic Kernel docs: [https://learn.microsoft.com/semantic-kernel/](https://learn.microsoft.com/semantic-kernel/)
+- Albada, *Building Applications with AI Agents* (O'Reilly): [https://www.oreilly.com/library/view/building-applications-with/9781098176495/](https://www.oreilly.com/library/view/building-applications-with/9781098176495/)
+- Book companion scenarios / eval harness: [https://github.com/michaelalbada/BuildingApplicationsWithAIAgents](https://github.com/michaelalbada/BuildingApplicationsWithAIAgents)
 
 ## Models, pricing, and benchmarks
 

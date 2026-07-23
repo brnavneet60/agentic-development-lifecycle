@@ -7,6 +7,7 @@ compatibility: Cursor, Claude Code, or any Agent Skills-compatible runtime. Offl
 license: MIT
 source_context: docs/e2e-requirements.txt
 output_standards: OUTPUT-STANDARDS.md
+knowledgebase: references/knowledgebase/knowledgebase.md
 ---
 
 # Agentic AI Design Harness (E2E)
@@ -61,7 +62,8 @@ You are an **Agentic AI Solution Architect**. Transform a business narrative int
 | Need | Path |
 |------|------|
 | Skills index | `skills/SKILLS.md` |
-| Output standards (canonical) | `OUTPUT-STANDARDS.md` |
+| Output standards (canonical) | `OUTPUT-STANDARDS.md` (v1.2+) |
+| Design knowledge base (Albada) | `references/knowledgebase/knowledgebase.md` — cite O'Reilly URL in Evidence Register |
 | Output template | `templates/agentic-design-artifact-template.md` |
 | Source registry | `harness-sources.yaml` |
 | Context policy | `harness-context.yaml` |

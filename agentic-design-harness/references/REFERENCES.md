@@ -9,6 +9,7 @@ Load only what the current skill requires.
 | context-management | CONTEXT-MANAGEMENT.md | manage-design-context, harness-context.yaml |
 | context-management | JOURNAL-AND-PARALLEL.md | write-design-journal, merge-parallel-research |
 | curation-sources | CURATION-SOURCES.md | offline curation provenance and refresh |
+| knowledgebase | knowledgebase.md + README.md | Albada multiagent design KB (cite O'Reilly URL, not path) |
 | design-patterns | DESIGN-PATTERNS.md | classify-design-pattern |
 | benchmark-matrix | BENCHMARK-MATRIX.yaml | model-selection, capture-business-flow |
 | model-catalog | MODEL-CATALOG.yaml | model-selection |
@@ -26,8 +27,9 @@ Load only what the current skill requires.
 | Reference | Version |
 |-----------|---------|
 | Harness | 1.3.0 |
-| OUTPUT-STANDARDS | 1.1 |
+| OUTPUT-STANDARDS | 1.2 |
 | BENCHMARK-MATRIX | 0.2.0 |
 | MODEL-CATALOG | 0.1.0 |
+| knowledgebase (Albada) | 1.0.0 (local copy; cite O'Reilly URL) |
 
 Validate pricing and benchmarks before procurement.

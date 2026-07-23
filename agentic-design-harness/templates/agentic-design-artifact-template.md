@@ -158,11 +158,51 @@
 | Tool timeout (ms) | {{pattern.resilience.timeouts.tool_call_ms}} |
 | End-to-end SLA (ms) | {{pattern.resilience.timeouts.end_to_end_ms}} |
 
-### 8.2 Agent Topology
+### 8.2 Solution Overview (diagram first — required)
 
+> **Harness rule:** Solution Overview **must open with a diagram** (block flow or agentic flow). Prose follows the diagram.
+
+```mermaid
+{{solution_overview_diagram}}
 ```
-{{ascii_topology_diagram}}
-```
+
+**Diagram intent (one sentence):** {{diagram_caption}}
+
+#### Plain-language architecture
+
+{{pattern.business_architecture_narrative}}
+
+#### Safety-first ordering
+
+1. {{safety_step_1}}
+2. {{safety_step_2}}
+3. {{safety_step_3}}
+4. {{safety_step_4}}
+
+#### Autonomy / confidence (measurable)
+
+| Signal | Auto-resolve allowed when | Else |
+|--------|---------------------------|------|
+| Amount / consequence | {{amount_rule}} | Human approval |
+| Confidence / quality score | {{confidence_definition}} | Human approval or clarify |
+| Policy ambiguity | Never auto-resolve | Human approval |
+
+#### Critic / quality node (required if named in operating model)
+
+| Attribute | Value |
+|-----------|-------|
+| Trigger | {{critic.trigger}} |
+| Pass criteria | {{critic.pass}} |
+| Fail path | {{critic.fail}} |
+| Model class | {{critic.model_class}} |
+| Latency / cost note | {{critic.cost_note}} |
+
+#### Supervisor topology
+
+| Choice | Value |
+|--------|-------|
+| One shared vs separate instances | {{supervisor.topology}} |
+| Rationale | {{supervisor.rationale}} |
 
 ---
 
