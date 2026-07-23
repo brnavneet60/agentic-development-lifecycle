@@ -132,11 +132,15 @@ Whenever the design is revised from new feedback or new information:
 
 ## 5. Output file naming
 
-Default layout (configurable — teams may choose a custom path):
+Output location is **configurable** via `paths.project_root` (YAML) or the activation prompt. The harness does not require any shared testing folder.
+
+Default layout if unset:
 
 ```
-agents-output/<harness-name>/<use-case-slug>/<use-case-slug>.md
+runs/<use-case-slug>/<use-case-slug>.md
 ```
+
+Journal entries and step context live alongside the artifact under `{project_root}`.
 
 Engineering detail for implementers lives in **Appendix B** of that file. Do not treat a separate technical companion as part of the default Definition of Done.
 

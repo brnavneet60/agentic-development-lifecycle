@@ -162,7 +162,7 @@ FUNCTION writeRevisionJournal(trigger, delta, decisions):
     updated_at, status, entries[], reviews[]
 ```
 
-**Rule:** Do not overwrite `agents-output/agentic-design-harness/<slug>/<slug>.md` without a revision journal entry.
+**Rule:** Do not overwrite `{project_root}/<slug>.md` without a revision journal entry.
 
 ---
 

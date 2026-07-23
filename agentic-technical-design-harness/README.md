@@ -34,10 +34,13 @@ A single markdown **Technical Design Document** covering, at minimum:
 | **Trade-offs & K8s view** | Scalability, modularity, cost; namespaces, workloads, GitOps/canary intent |
 | **Decision & evidence registers** | Chosen vs alternates, citations to primary docs / standards / papers |
 
-Default deliverable path (relative to the workspace where the agent runs):
+Default deliverable path is **configurable** (`project_root` in `config/harness.config.yaml` deliverers, or pass a path in the activation prompt).  
+There is no required shared testing folder.
+
+If unset, a reasonable default is:
 
 ```text
-agents-output/agentic-technical-design-harness/<use-case-slug>/<use-case-slug>-technical-design.md
+runs/<use-case-slug>/<use-case-slug>-technical-design.md
 ```
 
 ---
@@ -53,6 +56,7 @@ Using agentic-technical-design-harness, read OUTPUT-STANDARDS.md, HARNESS.md,
 and references/knowledgebase.md. Then produce a technical design for:
 [paste or attach your High-Level requirement summary].
 
+Write the TDD and any journals under: [your chosen path].
 Run Steps 1–14 with checkpoint confirmations. Deliver only if the
 OUTPUT-STANDARDS P0 quality checklist passes.
 ```

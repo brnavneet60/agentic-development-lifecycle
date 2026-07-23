@@ -28,7 +28,7 @@ Produce an Accept-quality NLD Technical Design Document for the current use case
 3. Include PDM epic map, prompt governance, AuthZ matrix with Authorize column, K8s resilience density.  
 4. Evidence Register: knowledgebase book chapters **and** full https peer/standards/pricing URLs.  
 5. Run OUTPUT-STANDARDS P0 checklist. **If any P0 item fails, fix before deliver-output.**  
-6. Activate `deliver-output` to the configured deliverer path (default under `agents-output/agentic-technical-design-harness/<slug>/`).
+6. Activate `deliver-output` to the configured deliverer path (default under `{project_root}/` (configurable)).
 
 ## Anti-patterns (do not ship)
 

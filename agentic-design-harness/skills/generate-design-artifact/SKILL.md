@@ -60,7 +60,7 @@ Produce the final High-Level Design markdown combining Steps 1–9 for a **leade
 ## Write path
 
 ```
-agents-output/agentic-design-harness/<flow.slug>/<flow.slug>.md
+{project_root}/<slug>.md
 ```
 
 ## Generation algorithm

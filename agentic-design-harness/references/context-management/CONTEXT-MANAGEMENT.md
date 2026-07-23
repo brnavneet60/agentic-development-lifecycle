@@ -189,8 +189,8 @@ Sources marked `cache_stable` in `harness-context.yaml` → `prompt_caching.cach
 After Steps **3** and **6**, write:
 
 ```
-agents-output/agentic-design-harness/<slug>/context/context-summary-through-3.yaml
-agents-output/agentic-design-harness/<slug>/context/context-summary-through-6.yaml
+{project_root}/context/context-summary-through-3.yaml
+{project_root}/context/context-summary-through-6.yaml
 ```
 
 Later steps load rollup instead of full step 1–3 or 1–6 YAML → smaller dynamic suffix, stable prefix unchanged.

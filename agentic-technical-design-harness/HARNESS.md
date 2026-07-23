@@ -67,10 +67,12 @@ Built-ins (use throughout): `resolve-reference`, `fetch-online`, `deliver-output
 
 ## Output location
 
+Configurable via deliverer `project_root` or the activation prompt. Default if unset: `runs/<slug>/`.
+
 ```
-agents-output/agentic-technical-design-harness/<slug>/<slug>-technical-design.md
+{project_root}/<slug>-technical-design.md
 ```
 
 ## Quick start
 
-> Using agentic-technical-design-harness, read OUTPUT-STANDARDS.md, HARNESS.md, and references/knowledgebase.md. Then produce a technical design for: [High-Level requirement summary]. Run Steps 1–14 with checkpoint confirmations. Deliver only if the OUTPUT-STANDARDS P0 quality checklist passes.
+> Using agentic-technical-design-harness, read OUTPUT-STANDARDS.md, HARNESS.md, and references/knowledgebase.md. Then produce a technical design for: [High-Level requirement summary]. Write under: [your chosen path]. Run Steps 1–14 with checkpoint confirmations. Deliver only if the OUTPUT-STANDARDS P0 quality checklist passes.

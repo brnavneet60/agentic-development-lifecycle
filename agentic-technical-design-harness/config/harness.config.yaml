@@ -356,4 +356,5 @@ outputs:
     # Knowledge≠Memory; tool recall/param accuracy; AuthZ Authorize column; full Evidence URLs.
   deliverers:
     - type: local_file
-      path: agents-output/{{harness_name}}/{{slug}}/{{slug}}-technical-design.md
+      # Override project_root at run time (activation prompt or env). Default: runs/{{slug}}
+      path: "{{project_root}}/{{slug}}-technical-design.md"

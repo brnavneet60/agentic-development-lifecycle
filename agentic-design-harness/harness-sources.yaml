@@ -8,14 +8,14 @@
 #
 # CURATION JOBS — incremental, idempotent pipelines: online source → offline file
 #
-# Copy to agents-output/agentic-design-harness/<slug>/harness-sources.yaml per project.
+# Copy to {project_root}/harness-sources.yaml per run (override paths.project_root).
 
 version: "1.2.0"
 harness_version: "1.0.0"
 
 paths:
   harness_root: agentic-design-harness
-  project_root: "agents-output/agentic-design-harness/{slug}"
+  project_root: "runs/{slug}"  # override at bootstrap; not a shared deliverable tree
 
 # =============================================================================
 # SOURCES

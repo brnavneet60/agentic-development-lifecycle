@@ -28,8 +28,8 @@ Bridge between **source config** (`harness-sources.yaml`) and **skill execution*
 
 - `harness-sources.yaml` (source registry)
 - `harness-context.yaml` (this policy)
-- Prior step outputs in `agents-output/agentic-design-harness/<slug>/context/steps/` (if any)
-- Optional: `agents-output/agentic-design-harness/<slug>/constraints.yaml`
+- Prior step outputs in `{project_root}/context/steps/` (if any)
+- Optional: `{project_root}/constraints.yaml`
 
 ---
 
@@ -42,7 +42,7 @@ FUNCTION bootstrapContext(project_slug):
   LOAD harness-context.yaml
   LOAD harness-journal.yaml
   LOAD harness-parallel.yaml
-  RESOLVE paths.project_root = agents-output/agentic-design-harness/{project_slug}/
+  RESOLVE paths.project_root = {project_root}/
 
   CREATE directories:
     - context/steps/

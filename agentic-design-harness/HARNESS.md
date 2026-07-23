@@ -78,23 +78,31 @@ You are an **Agentic AI Solution Architect**. Transform a business narrative int
 
 ## Output Location
 
+Output path is **configurable**. Set `paths.project_root` in the harness YAML configs (or pass a path in the activation prompt).
+
+Default if unset:
+
 ```
-agents-output/agentic-design-harness/<use-case-slug>/<use-case-slug>.md
+runs/<use-case-slug>/
+└── <use-case-slug>.md
 ```
 
-Slug from use case name (e.g. `lyft-charge-earnings-dispute`). See `OUTPUT-STANDARDS.md`.
+Journal and step context live under the same `{project_root}`.  
+There is **no** required shared output tree outside the run — choose any directory that suits your workspace.
+
+See `OUTPUT-STANDARDS.md`.
 
 ## Relationship to Platform Harness
 
 ```
 agentic-design-harness (this)
-  → agents-output/agentic-design-harness/<slug>/<slug>.md   # executive HLD
+  → {project_root}/<slug>.md   # executive HLD
          │
          ▼
-kagent-design-harness
-  → agents-output/kagent-design-harness/<slug>/…           # implementation
+implementation / platform harness
+  → its own configured output path
 ```
 
 ## Quick Start Prompt
 
-> "Using agentic-design-harness v1.3, read OUTPUT-STANDARDS.md and HARNESS.md, then design end-to-end agentic AI for: [business flow]. Run Steps 0–10 with checkpoint confirmations. Produce agents-output/agentic-design-harness/<slug>/<slug>.md as an **executive HLD** per OUTPUT-STANDARDS (evidence register with external URLs, interview coverage matrix, open-decision defaults). Journal every step and every revision."
+> "Using agentic-design-harness v1.3, read OUTPUT-STANDARDS.md and HARNESS.md, then design end-to-end agentic AI for: [business flow]. Run Steps 0–10 with checkpoint confirmations. Write the executive HLD and journal under: [your chosen path]. Follow OUTPUT-STANDARDS (evidence register with external URLs, interview coverage matrix, open-decision defaults). Journal every step and every revision."

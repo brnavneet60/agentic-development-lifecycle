@@ -9,7 +9,7 @@ version: "1.0.0"
 sources_config: harness-sources.yaml
 
 paths:
-  project_root: "agents-output/agentic-design-harness/{slug}"
+  project_root: "runs/{slug}"  # override at bootstrap; not a shared deliverable tree
   context_state: "{project_root}/context-state/"
   step_context_dir: "{project_root}/context/steps/"
 

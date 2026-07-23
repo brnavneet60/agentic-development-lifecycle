@@ -9,7 +9,7 @@
 version: "1.0.0"
 
 paths:
-  project_root: "agents-output/agentic-design-harness/{slug}"
+  project_root: "runs/{slug}"  # override at bootstrap; not a shared deliverable tree
   journal_dir: "{project_root}/journal/"
   journal_index: "{project_root}/journal/INDEX.yaml"
   steps_dir: "{project_root}/context/steps/"

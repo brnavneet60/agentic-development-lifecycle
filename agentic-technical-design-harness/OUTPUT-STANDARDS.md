@@ -105,10 +105,12 @@ Template: `outputs/templates/default.md`
 4. Evidence Register: Primary/Secondary need resolvable sources (https and/or book title+chapter).  
 5. Activate `deliver-output`.
 
-Default deliverer path:
+Default deliverer path is **configurable** (`project_root` / activation prompt). No shared testing folder is required.
+
+If unset:
 
 ```
-agents-output/agentic-technical-design-harness/<slug>/<slug>-technical-design.md
+runs/<slug>/<slug>-technical-design.md
 ```
 
 Revisions: write `<slug>-technical-design-vN.md` (or `-consolidated`) when iterating; do not silently overwrite Accept artifacts without a revision note.

@@ -33,7 +33,7 @@ Parent    → loads hot tier only (+ rollup at checkpoints)
 ### Directory layout
 
 ```
-agents-output/agentic-design-harness/<slug>/
+{project_root}/
   journal/
     INDEX.yaml                    # table of contents
     entries/
